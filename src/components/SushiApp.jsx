@@ -1389,7 +1389,8 @@ ${orderItems}
           rating: editingProduct.rating
         });
       }
-    }, [editingProduct]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [editingProduct?.id]);
 
     // Validar dados do formulário
     const validateForm = () => {
