@@ -29,6 +29,7 @@ export const useFirestoreMenu = (initialMenu) => {
         } else {
           // Se não existe, inicializar com menu inicial
           console.log('🔥 Inicializando menu no Firestore...');
+          setMenu(initialMenu); // Definir menu local primeiro
           initializeMenu(initialMenu);
         }
         setLoading(false);
@@ -152,6 +153,8 @@ export const useFirestoreSettings = (initialSettings) => {
           setSettings(data);
         } else {
           // Inicializar configurações
+          console.log('🔥 Inicializando configurações no Firestore...');
+          setSettings(initialSettings); // Definir configurações locais primeiro
           initializeSettings(initialSettings);
         }
         setLoading(false);

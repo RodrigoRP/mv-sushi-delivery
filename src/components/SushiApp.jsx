@@ -295,6 +295,11 @@ const SushiApp = () => {
 
   // Inicialização da aplicação
   useEffect(() => {
+    // Aguardar carregamento do Firebase antes de inicializar
+    if (menuLoading || settingsLoading) {
+      return;
+    }
+
     // Verificar se está acessando rota /admin
     const isAdminRoute = window.location.pathname === '/admin';
     
@@ -317,7 +322,7 @@ const SushiApp = () => {
     
     // Marcar como inicializado
     setIsInitialized(true);
-  }, []);
+  }, [menuLoading, settingsLoading]);
 
   // Sistema de backup automático
   useEffect(() => {
@@ -343,8 +348,8 @@ const SushiApp = () => {
   // Categorias disponíveis
   const categories = ['Todos', 'Populares', 'Combos', 'Uramaki', 'Sashimis', 'Temakis', 'Hot Rolls', 'Poke', 'Entrada'];
 
-  // Filtrar produtos
-  const filteredProducts = sushiMenu.filter(product => {
+  // Filtrar produtos (com verificação de segurança)
+  const filteredProducts = (sushiMenu || []).filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -474,7 +479,7 @@ ${orderItems}
       await firestoreUpdateProduct(productId, updates);
       
       // Mostrar notificação de sucesso
-      const productName = sushiMenu.find(p => p.id === productId)?.name || 'Produto';
+      const productName = (sushiMenu || []).find(p => p.id === productId)?.name || 'Produto';
       setNotification({
         type: 'success',
         message: `${productName} foi atualizado com sucesso!`,
@@ -505,7 +510,7 @@ ${orderItems}
       // Usar Firestore para toggle em tempo real
       await firestoreToggleAvailability(productId);
       
-      const product = sushiMenu.find(p => p.id === productId);
+      const product = (sushiMenu || []).find(p => p.id === productId);
       if (product) {
         setNotification({
           type: 'success',
