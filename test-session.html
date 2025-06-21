@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste Sessão localStorage</title>
+</head>
+<body>
+    <h1>Teste de Sessão Admin</h1>
+    <p>Status: <span id="status"></span></p>
+    <p>Valor no localStorage: <span id="value"></span></p>
+    
+    <button onclick="setSession()">Definir Sessão (true)</button>
+    <button onclick="clearSession()">Limpar Sessão</button>
+    <button onclick="checkSession()">Verificar Sessão</button>
+    
+    <script>
+        function checkSession() {
+            const session = localStorage.getItem('mvSushiAdminSession');
+            document.getElementById('value').textContent = session;
+            document.getElementById('status').textContent = session === 'true' ? 'ADMIN' : 'CLIENTE';
+            console.log('Sessão atual:', session);
+        }
+        
+        function setSession() {
+            localStorage.setItem('mvSushiAdminSession', 'true');
+            console.log('Sessão definida como true');
+            checkSession();
+        }
+        
+        function clearSession() {
+            localStorage.removeItem('mvSushiAdminSession');
+            console.log('Sessão removida');
+            checkSession();
+        }
+        
+        // Verificar ao carregar
+        checkSession();
+        
+        // Verificar a cada segundo
+        setInterval(checkSession, 1000);
+    </script>
+</body>
+</html>

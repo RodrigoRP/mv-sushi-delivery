@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Sessão Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Sessão Admin - MV Sushi</h1>
+    
+    <div class="info">
+        <strong>Instruções:</strong><br>
+        1. Faça login no admin (localhost:3000/admin)<br>
+        2. Volte aqui e clique em "Verificar Sessão"<br>
+        3. Atualize a página admin e veja se mantém o login
+    </div>
+    
+    <div id="status"></div>
+    
+    <button onclick="checkSession()">🔍 Verificar Sessão</button>
+    <button onclick="setTestSession()">✅ Definir Sessão Teste</button>
+    <button onclick="clearSession()">❌ Limpar Sessão</button>
+    <button onclick="openAdmin()">🔗 Abrir Admin</button>
+    
+    <div id="details"></div>
+    
+    <script>
+        function checkSession() {
+            const session = localStorage.getItem('mvSushiAdminSession');
+            const status = document.getElementById('status');
+            const details = document.getElementById('details');
+            
+            console.log('🔍 Verificando sessão:', session);
+            
+            if (session === 'true') {
+                status.innerHTML = '<div class="success">✅ SESSÃO ATIVA - Admin logado</div>';
+            } else if (session === 'false') {
+                status.innerHTML = '<div class="error">❌ SESSÃO INATIVA - Admin deslogado</div>';
+            } else if (session === null) {
+                status.innerHTML = '<div class="error">❌ NENHUMA SESSÃO - Nunca fez login</div>';
+            } else {
+                status.innerHTML = '<div class="error">❓ SESSÃO INVÁLIDA - Valor: ' + session + '</div>';
+            }
+            
+            details.innerHTML = `
+                <h3>Detalhes Técnicos:</h3>
+                <ul>
+                    <li><strong>Valor no localStorage:</strong> "${session}"</li>
+                    <li><strong>Tipo:</strong> ${typeof session}</li>
+                    <li><strong>Comparação === 'true':</strong> ${session === 'true'}</li>
+                    <li><strong>URL atual:</strong> ${window.location.href}</li>
+                    <li><strong>Timestamp:</strong> ${new Date().toLocaleString()}</li>
+                </ul>
+            `;
+        }
+        
+        function setTestSession() {
+            localStorage.setItem('mvSushiAdminSession', 'true');
+            console.log('✅ Sessão definida manualmente');
+            checkSession();
+        }
+        
+        function clearSession() {
+            localStorage.removeItem('mvSushiAdminSession');
+            console.log('❌ Sessão removida');
+            checkSession();
+        }
+        
+        function openAdmin() {
+            window.open('http://localhost:3000/admin', '_blank');
+        }
+        
+        // Auto-verificar ao carregar
+        checkSession();
+        
+        // Verificar a cada 2 segundos
+        setInterval(checkSession, 2000);
+    </script>
+</body>
+</html>
