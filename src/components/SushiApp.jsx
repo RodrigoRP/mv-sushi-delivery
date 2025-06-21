@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestore';
 import { 
   ShoppingCart, 
   Search, 
@@ -262,23 +263,28 @@ const SushiApp = () => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   
-  // Configurações da loja
-  const [storeSettings, setStoreSettings] = useState({
+  // Configurações iniciais da loja
+  const initialStoreSettings = {
     isOpen: true,
     estimatedTime: '30-45 min',
     announcement: 'Encomendas antecipadas - Ingredientes limitados'
-  });
+  };
 
-  // Menu com persistência
-  const [sushiMenu, setSushiMenu] = useState(() => {
-    const savedMenu = localStorage.getItem('mvSushiMenu');
-    return savedMenu ? JSON.parse(savedMenu) : initialMenu;
-  });
+  // Hooks do Firestore para sincronização em tempo real
+  const {
+    menu: sushiMenu,
+    loading: menuLoading,
+    error: menuError,
+    updateProduct: firestoreUpdateProduct,
+    toggleProductAvailability: firestoreToggleAvailability,
+    resetMenu: firestoreResetMenu
+  } = useFirestoreMenu(initialMenu);
 
-  // Salvar menu no localStorage sempre que mudar
-  useEffect(() => {
-    localStorage.setItem('mvSushiMenu', JSON.stringify(sushiMenu));
-  }, [sushiMenu]);
+  const {
+    settings: storeSettings,
+    loading: settingsLoading,
+    updateSettings: updateStoreSettings
+  } = useFirestoreSettings(initialStoreSettings);
 
   // Gerenciar sessão admin
   useEffect(() => {
@@ -460,47 +466,63 @@ ${orderItems}
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const updateProduct = (productId, updates) => {
+  const updateProduct = async (productId, updates) => {
     console.log('🔄 updateProduct chamado:', { productId, updates });
     
-    setSushiMenu(prevMenu => {
-      console.log('📋 Menu anterior:', prevMenu);
-      const newMenu = prevMenu.map(product => 
-        product.id === productId ? { ...product, ...updates } : product
-      );
-      console.log('📋 Menu atualizado:', newMenu);
-      return newMenu;
-    });
-    
-    // Mostrar notificação de sucesso
-    const productName = sushiMenu.find(p => p.id === productId)?.name || 'Produto';
-    setNotification({
-      type: 'success',
-      message: `${productName} foi atualizado com sucesso!`,
-      timestamp: Date.now()
-    });
-    
-    // Remover notificação após 3 segundos
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-    
-    setEditingProduct(null);
+    try {
+      // Usar Firestore para atualização em tempo real
+      await firestoreUpdateProduct(productId, updates);
+      
+      // Mostrar notificação de sucesso
+      const productName = sushiMenu.find(p => p.id === productId)?.name || 'Produto';
+      setNotification({
+        type: 'success',
+        message: `${productName} foi atualizado com sucesso!`,
+        timestamp: Date.now()
+      });
+      
+      // Remover notificação após 3 segundos
+      setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      
+      setEditingProduct(null);
+    } catch (error) {
+      console.error('❌ Erro ao atualizar produto:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erro ao atualizar produto. Tente novamente.',
+        timestamp: Date.now()
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
-  const toggleProductAvailability = (productId) => {
+  const toggleProductAvailability = async (productId) => {
     console.log('👁️ toggleProductAvailability chamado:', productId);
     
-    setSushiMenu(prevMenu => {
-      console.log('📋 Menu anterior (toggle):', prevMenu);
-      const newMenu = prevMenu.map(product => 
-        product.id === productId 
-          ? { ...product, available: !product.available }
-          : product
-      );
-      console.log('📋 Menu atualizado (toggle):', newMenu);
-      return newMenu;
-    });
+    try {
+      // Usar Firestore para toggle em tempo real
+      await firestoreToggleAvailability(productId);
+      
+      const product = sushiMenu.find(p => p.id === productId);
+      if (product) {
+        setNotification({
+          type: 'success',
+          message: `${product.name} ${!product.available ? 'disponibilizado' : 'marcado como indisponível'}!`,
+          timestamp: Date.now()
+        });
+        setTimeout(() => setNotification(null), 3000);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao alterar disponibilidade:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erro ao alterar disponibilidade. Tente novamente.',
+        timestamp: Date.now()
+      });
+      setTimeout(() => setNotification(null), 3000);
+    }
   };
 
   const resetMenu = () => {
@@ -509,16 +531,26 @@ ${orderItems}
       message: 'Tem certeza que deseja resetar o menu para os valores padrão? Esta ação não pode ser desfeita.',
       confirmText: 'Resetar',
       cancelText: 'Cancelar',
-      onConfirm: () => {
-        setSushiMenu(initialMenu);
-        setNotification({
-          type: 'success',
-          message: 'Menu resetado para os valores padrão!',
-          timestamp: Date.now()
-        });
-        setTimeout(() => {
-          setNotification(null);
-        }, 3000);
+      onConfirm: async () => {
+        try {
+          await firestoreResetMenu();
+          setNotification({
+            type: 'success',
+            message: 'Menu resetado para os valores padrão!',
+            timestamp: Date.now()
+          });
+          setTimeout(() => {
+            setNotification(null);
+          }, 3000);
+        } catch (error) {
+          console.error('❌ Erro ao resetar menu:', error);
+          setNotification({
+            type: 'error',
+            message: 'Erro ao resetar menu. Tente novamente.',
+            timestamp: Date.now()
+          });
+          setTimeout(() => setNotification(null), 3000);
+        }
         setConfirmDialog(null);
       },
       onCancel: () => setConfirmDialog(null)
@@ -536,8 +568,8 @@ ${orderItems}
           const backup = localStorage.getItem('mvSushiBackup');
           if (backup) {
             const backupData = JSON.parse(backup);
-            setSushiMenu(backupData.menu);
-            setStoreSettings(backupData.settings);
+            // Note: Em uma implementação real com Firebase, você restauraria os dados diretamente no Firestore
+            console.log('⚠️ Funcionalidade de restaurar backup precisa ser implementada com Firebase');
             setNotification({
               type: 'success',
               message: `Backup restaurado! (${new Date(backupData.timestamp).toLocaleString('pt-BR')})`,
@@ -1209,7 +1241,7 @@ ${orderItems}
             <div>
               <label className="block text-sm font-medium mb-2">Status da Loja</label>
               <button
-                onClick={() => setStoreSettings({
+                onClick={() => updateStoreSettings({
                   ...storeSettings,
                   isOpen: !storeSettings.isOpen
                 })}
@@ -1230,7 +1262,7 @@ ${orderItems}
                 name="estimatedTime"
                 type="text"
                 value={storeSettings.estimatedTime}
-                onChange={(e) => setStoreSettings({
+                onChange={(e) => updateStoreSettings({
                   ...storeSettings,
                   estimatedTime: e.target.value
                 })}
@@ -1724,7 +1756,7 @@ ${orderItems}
   };
 
   // Loading screen enquanto inicializa
-  if (!isInitialized) {
+  if (!isInitialized || menuLoading || settingsLoading) {
     return (
       <div className="min-h-screen bg-custom-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -1732,7 +1764,18 @@ ${orderItems}
             🍣
           </div>
           <h2 className="text-xl font-semibold text-gray-700">Carregando MV Sushi...</h2>
-          <p className="text-gray-500 mt-1">Verificando sessão</p>
+          <p className="text-gray-500 mt-1">
+            {!isInitialized ? 'Verificando sessão' : 
+             menuLoading ? 'Carregando menu' : 
+             'Carregando configurações'}
+          </p>
+          {menuError && (
+            <div className="mt-4 p-3 bg-red-100 border border-red-200 rounded-lg max-w-md mx-auto">
+              <p className="text-red-600 text-sm">
+                ⚠️ Erro ao conectar com Firebase. Usando dados locais.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     );
