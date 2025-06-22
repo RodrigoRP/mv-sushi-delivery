@@ -41,7 +41,8 @@ const SushiApp = () => {
       rating: 4.8,
       available: true,
       popular: true,
-      promocaoDoDia: true
+      promocaoDoDia: true,
+      desconto: 15
     },
     {
       id: 2,
@@ -63,7 +64,9 @@ const SushiApp = () => {
       category: 'Combos',
       rating: 4.9,
       available: true,
-      popular: false
+      popular: false,
+      promocaoDoDia: true,
+      desconto: 20
     },
     {
       id: 4,
@@ -366,6 +369,11 @@ const SushiApp = () => {
 
   // Funções do carrinho
   const addToCart = (product) => {
+    const productWithDiscountedPrice = {
+      ...product,
+      price: getFinalPrice(product) // Usar preço final (com ou sem desconto)
+    };
+    
     const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
       setCart(cart.map(item => 
@@ -374,7 +382,7 @@ const SushiApp = () => {
           : item
       ));
     } else {
-      setCart([...cart, { ...product, quantity: 1 }]);
+      setCart([...cart, { ...productWithDiscountedPrice, quantity: 1 }]);
     }
   };
 
@@ -400,6 +408,18 @@ const SushiApp = () => {
 
   const getTotalItems = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  // Funções para cálculo de desconto
+  const getDiscountedPrice = (product) => {
+    if (product.desconto && product.desconto > 0) {
+      return product.price * (1 - product.desconto / 100);
+    }
+    return product.price;
+  };
+
+  const getFinalPrice = (product) => {
+    return product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
   };
 
   // Função de checkout
@@ -669,9 +689,22 @@ ${orderItems}
 
   // Componente Promoção do Dia
   const PromocaoDoDia = () => {
-    const promocaoProduct = (sushiMenu || []).find(product => product.promocaoDoDia);
+    const promocaoProducts = (sushiMenu || []).filter(product => product.promocaoDoDia);
+    const [currentPromoIndex, setCurrentPromoIndex] = useState(0);
     
-    if (!promocaoProduct) return null;
+    // Rotacionar promoções a cada 5 segundos se houver múltiplas
+    useEffect(() => {
+      if (promocaoProducts.length > 1) {
+        const interval = setInterval(() => {
+          setCurrentPromoIndex((prev) => (prev + 1) % promocaoProducts.length);
+        }, 5000);
+        return () => clearInterval(interval);
+      }
+    }, [promocaoProducts.length]);
+    
+    if (promocaoProducts.length === 0) return null;
+    
+    const promocaoProduct = promocaoProducts[currentPromoIndex];
 
     return (
       <section className="max-w-7xl mx-auto px-4 py-6 md:py-8">
@@ -697,7 +730,14 @@ ${orderItems}
               </div>
               <div className="hidden md:block text-right">
                 <div className="text-xs text-red-200 mb-1">ECONOMIZE HOJE</div>
-                <div className="text-2xl font-bold text-yellow-300">ATÉ 20% OFF</div>
+                <div className="text-2xl font-bold text-yellow-300">
+                  {promocaoProduct.desconto ? `${promocaoProduct.desconto}% OFF` : 'OFERTA ESPECIAL'}
+                </div>
+                {promocaoProducts.length > 1 && (
+                  <div className="text-xs text-red-200 mt-1">
+                    {currentPromoIndex + 1} de {promocaoProducts.length} ofertas
+                  </div>
+                )}
               </div>
             </div>
             
@@ -719,9 +759,27 @@ ${orderItems}
                   <p className="text-white/90 mb-4 text-lg leading-relaxed">{promocaoProduct.description}</p>
                   
                   <div className="flex items-center space-x-4 mb-6">
-                    <div className="text-3xl font-bold text-yellow-300">
-                      R$ {promocaoProduct.price.toFixed(2)}
+                    <div className="flex flex-col">
+                      {promocaoProduct.desconto && promocaoProduct.desconto > 0 ? (
+                        <>
+                          <div className="text-lg text-red-200 line-through">
+                            R$ {promocaoProduct.price.toFixed(2)}
+                          </div>
+                          <div className="text-3xl font-bold text-yellow-300">
+                            R$ {getDiscountedPrice(promocaoProduct).toFixed(2)}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-3xl font-bold text-yellow-300">
+                          R$ {promocaoProduct.price.toFixed(2)}
+                        </div>
+                      )}
                     </div>
+                    {promocaoProduct.desconto && promocaoProduct.desconto > 0 && (
+                      <div className="bg-yellow-400 text-red-800 px-3 py-1 rounded-full text-sm font-bold">
+                        -{promocaoProduct.desconto}%
+                      </div>
+                    )}
                     {promocaoProduct.rating && (
                       <div className="flex items-center space-x-1 bg-white/20 px-3 py-1 rounded-full">
                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -764,6 +822,19 @@ ${orderItems}
                     <p className="text-sm text-red-100">
                       ⚡ Oferta válida enquanto durarem os ingredientes
                     </p>
+                    {promocaoProducts.length > 1 && (
+                      <div className="flex justify-center space-x-2 mt-3">
+                        {promocaoProducts.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentPromoIndex(index)}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              index === currentPromoIndex ? 'bg-yellow-400' : 'bg-white/30'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -852,9 +923,27 @@ ${orderItems}
               <Star className="w-4 h-4 text-yellow-400 fill-current" />
               <span className="text-sm font-medium">{product.rating}</span>
             </div>
-            <span className="text-2xl font-bold text-primary">
-              R$ {product.price.toFixed(2)}
-            </span>
+            <div className="flex flex-col items-end">
+              {product.promocaoDoDia && product.desconto && product.desconto > 0 ? (
+                <>
+                  <span className="text-sm text-gray-400 line-through">
+                    R$ {product.price.toFixed(2)}
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    R$ {getDiscountedPrice(product).toFixed(2)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl font-bold text-primary">
+                  R$ {product.price.toFixed(2)}
+                </span>
+              )}
+            </div>
+            {product.promocaoDoDia && product.desconto && product.desconto > 0 && (
+              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                -{product.desconto}%
+              </span>
+            )}
           </div>
           
           {product.available && !isAdmin && (
@@ -1814,6 +1903,26 @@ ${orderItems}
                   }`}
                 />
                 {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Desconto (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={editData.desconto || ''}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 0;
+                    setEditData({...editData, desconto: value > 0 ? value : null});
+                  }}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="Ex: 15 (para 15% de desconto)"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Deixe vazio para sem desconto. Só aplicado se for promoção do dia.
+                </p>
               </div>
               
               <div>
