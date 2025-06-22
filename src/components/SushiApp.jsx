@@ -268,7 +268,7 @@ const SushiApp = () => {
   const [cart, setCart] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [selectedCategory, setSelectedCategory] = useState('Populares');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [orders, setOrders] = useState([]);
@@ -687,7 +687,7 @@ const SushiApp = () => {
 
   // Componente Header
   const Header = () => (
-    <header className="bg-white shadow-sm sticky top-0 z-40">
+    <header className="bg-white sticky top-0 z-40 border-b-2 border-gradient-to-r from-green-200 via-yellow-200 to-red-200" style={{borderImageSource: 'linear-gradient(to right, #bbf7d0, #fef3c7, #fecaca)', borderImageSlice: 1}}>
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -785,9 +785,9 @@ const SushiApp = () => {
         }}
       ></div>
       <div className="relative max-w-6xl mx-auto px-4 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Autêntica Culinária Japonesa</h2>
-        <p className="text-gray-200 mb-6 flex items-center justify-center space-x-1">
-          <MapPin className="w-4 h-4" />
+        <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-wide" style={{fontFamily: 'Inter, system-ui, sans-serif'}}>Autêntica Culinária Japonesa</h2>
+        <p className="text-yellow-200 mb-6 flex items-center justify-center space-x-1 font-medium text-lg">
+          <MapPin className="w-5 h-5 text-yellow-300" />
           <span>São Francisco de Assis e Região</span>
         </p>
         
@@ -857,6 +857,21 @@ const SushiApp = () => {
               )}
             </div>
           </div>
+          
+          {/* Navegação manual se houver múltiplas promoções */}
+          {promocaoProducts.length > 1 && (
+            <div className="flex justify-center space-x-2 mt-3">
+              {promocaoProducts.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPromoIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    index === currentPromoIndex ? 'bg-yellow-400' : 'bg-white/40 hover:bg-white/60'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     );
@@ -864,9 +879,9 @@ const SushiApp = () => {
 
   // Componente Search & Filter
   const SearchAndFilter = () => (
-    <div className="max-w-6xl mx-auto px-4 py-6">
-      <div className="mb-4">
-        <div className="relative max-w-md">
+    <div className="max-w-6xl mx-auto px-4 py-6 text-center">
+      <div className="mb-6">
+        <div className="relative max-w-md mx-auto">
           <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
@@ -876,12 +891,12 @@ const SushiApp = () => {
             placeholder="Buscar produtos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm shadow-sm"
           />
         </div>
       </div>
       
-      <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
+      <div className="flex justify-center space-x-2 overflow-x-auto scrollbar-hide pb-2">
         {categories.map(category => (
           <button
             key={category}
