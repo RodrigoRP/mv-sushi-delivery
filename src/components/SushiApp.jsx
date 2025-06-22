@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   ShoppingCart, 
   Search, 
@@ -1583,7 +1583,7 @@ ${orderItems}
             <div className="text-center space-y-6">
               {/* QR Code */}
               <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block">
-                <QRCode 
+                <QRCodeSVG 
                   value={currentOrder.pix_payload}
                   size={200}
                   level="M"
