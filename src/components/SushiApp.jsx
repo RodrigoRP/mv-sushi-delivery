@@ -15,6 +15,10 @@ import {
   Package,
   Store,
   DollarSign,
+  Instagram,
+  Facebook,
+  Mail,
+  MessageCircle,
   Eye,
   EyeOff,
   Edit3,
@@ -856,6 +860,141 @@ ${orderItems}
         </div>
       </div>
     </div>
+  );
+
+  // Componente Footer
+  const Footer = () => (
+    <footer className="bg-gray-900 text-white mt-16">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          
+          {/* Informações da Empresa */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="gradient-primary w-8 h-8 rounded-lg flex items-center justify-center text-lg">
+                🍣
+              </div>
+              <h3 className="text-xl font-bold">MV Sushi</h3>
+            </div>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Autêntica culinária japonesa em São Francisco de Assis e região. 
+              Ingredientes frescos e tradição oriental em cada prato.
+            </p>
+            
+            {/* Redes Sociais */}
+            <div className="flex space-x-3 pt-2">
+              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a href="#" className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors">
+                <MessageCircle className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Contato */}
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold">Contato</h4>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Phone className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="font-medium">(55) 99600-5343</p>
+                  <p className="text-gray-400 text-xs">WhatsApp - Encomendas</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                <Mail className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="text-sm">contato@mvsushi.com.br</p>
+                  <p className="text-gray-400 text-xs">Email comercial</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Endereço */}
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold">Localização</h4>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3">
+                <MapPin className="w-4 h-4 text-primary mt-1" />
+                <div>
+                  <p className="font-medium">São Francisco de Assis</p>
+                  <p className="text-gray-300 text-sm">Rio Grande do Sul, Brasil</p>
+                  <p className="text-gray-400 text-xs mt-1">Entrega em toda região</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Horário de Funcionamento */}
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold">Funcionamento</h4>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3">
+                <Clock className="w-4 h-4 text-primary" />
+                <div>
+                  <p className="font-medium text-sm">Ter - Dom</p>
+                  <p className="text-gray-300 text-sm">18:00 - 23:00</p>
+                </div>
+              </div>
+              
+              <div className="text-xs text-gray-400 mt-3 p-2 bg-gray-800 rounded">
+                <p className="font-medium text-yellow-400">📱 Encomendas Antecipadas</p>
+                <p>Faça seu pedido com antecedência</p>
+              </div>
+              
+              <div className="mt-3">
+                <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                  storeSettings.isOpen 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full mr-2 ${
+                    storeSettings.isOpen ? 'bg-green-400' : 'bg-red-400'
+                  }`}></div>
+                  {storeSettings.isOpen ? 'Aberto Agora' : 'Fechado'}
+                </div>
+                <p className="text-gray-400 text-xs mt-1">
+                  Tempo estimado: {storeSettings.estimatedTime}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Linha divisória */}
+        <div className="border-t border-gray-800 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            
+            {/* Copyright */}
+            <div className="text-center md:text-left">
+              <p className="text-gray-400 text-sm">
+                © {new Date().getFullYear()} MV Sushi Delivery. Todos os direitos reservados.
+              </p>
+              <p className="text-gray-500 text-xs mt-1">
+                Desenvolvido com ❤️ para São Francisco de Assis
+              </p>
+            </div>
+
+            {/* Links legais */}
+            <div className="flex space-x-6 text-sm">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Política de Privacidade
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Termos de Uso
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 
   // Componente Product Grid
@@ -1806,6 +1945,7 @@ ${orderItems}
       <HeroSection />
       <SearchAndFilter />
       <ProductGrid />
+      <Footer />
       <CartSidebar />
       <CheckoutModal />
       <AdminLoginModal />
