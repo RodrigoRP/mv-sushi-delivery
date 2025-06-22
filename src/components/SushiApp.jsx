@@ -846,6 +846,7 @@ const SushiApp = () => {
                 </div>
               )}
             </div>
+          </div>
         </div>
       </section>
     );
@@ -905,44 +906,6 @@ const SushiApp = () => {
           ))}
         </div>
       )}
-    </div>
-  );
-
-  // Componente Search & Filter
-  const SearchAndFilter = () => (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <div className="relative max-w-md">
-          <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-custom-gray-500 w-5 h-5" />
-          <input
-            id="search-products"
-            name="search"
-            type="text"
-            placeholder="Buscar produtos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-        </div>
-      </div>
-      
-      <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
-        {categories.map(category => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 rounded-full whitespace-nowrap font-medium transition-all duration-200 ${
-              selectedCategory === category
-                ? 'bg-primary text-white shadow-lg'
-                : 'bg-white text-custom-gray-700 border border-gray-200 hover:border-primary'
-            }`}
-          >
-            {category === 'Populares' && '⭐ '}
-            {category}
-          </button>
-        ))}
-      </div>
     </div>
   );
 
@@ -1200,24 +1163,6 @@ const SushiApp = () => {
     </footer>
   );
 
-  // Componente Product Grid
-  const ProductGrid = () => (
-    <div className="max-w-7xl mx-auto px-4 pb-8">
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-6xl mb-4">🍣</div>
-          <h3 className="text-xl font-semibold mb-2">Nenhum produto encontrado</h3>
-          <p className="text-custom-gray-500">Tente ajustar sua busca ou filtros</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
 
   // Componente Cart Sidebar
   const CartSidebar = () => (
