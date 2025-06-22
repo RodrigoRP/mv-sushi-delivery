@@ -287,6 +287,22 @@ const SushiApp = () => {
     toggleProductAvailability: firestoreToggleAvailability
   } = useFirestoreMenu(initialMenu);
 
+  // Debug: Log menu quando carregado
+  useEffect(() => {
+    if (sushiMenu && sushiMenu.length > 0) {
+      console.log('📋 Menu loaded:', sushiMenu.length, 'items');
+      sushiMenu.forEach(product => {
+        if (product.promocaoDoDia || product.desconto) {
+          console.log('🔥 Promotion product:', product.name, {
+            promocaoDoDia: product.promocaoDoDia,
+            desconto: product.desconto,
+            price: product.price
+          });
+        }
+      });
+    }
+  }, [sushiMenu]);
+
   const {
     settings: storeSettings,
     loading: settingsLoading,
@@ -412,14 +428,25 @@ const SushiApp = () => {
 
   // Funções para cálculo de desconto
   const getDiscountedPrice = (product) => {
+    console.log('🧮 getDiscountedPrice called for:', product.name, {
+      desconto: product.desconto,
+      price: product.price,
+      promocaoDoDia: product.promocaoDoDia
+    });
+    
     if (product.desconto && product.desconto > 0) {
-      return product.price * (1 - product.desconto / 100);
+      const discountedPrice = product.price * (1 - product.desconto / 100);
+      console.log('💰 Discount applied:', product.price, '→', discountedPrice);
+      return discountedPrice;
     }
+    console.log('💰 No discount applied for:', product.name);
     return product.price;
   };
 
   const getFinalPrice = (product) => {
-    return product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
+    const finalPrice = product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
+    console.log('🏷️ Final price for', product.name, ':', finalPrice);
+    return finalPrice;
   };
 
   // Função de checkout
