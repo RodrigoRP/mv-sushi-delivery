@@ -559,27 +559,6 @@ const SushiApp = () => {
     const pixPayload = generatePixPayload(totalAmount, orderId);
     const pixTxId = `MV-${orderId}`;
     
-    const orderItems = cart.map(item => 
-      `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`
-    ).join('\\n');
-
-    const total = totalAmount.toFixed(2);
-    
-    const whatsappMessage = `🍣 *PEDIDO M.V. SUSHI DELIVERY*
-
-👤 *Cliente:* ${customerData.name}
-📱 *Telefone:* ${customerData.phone}
-📍 *Endereço:* ${customerData.address}
-
-🛒 *Itens do Pedido:*
-${orderItems}
-
-💰 *TOTAL: R$ ${total}*
-
-📱 *Código PIX:* ${pixPayload}
-
-⚠️ *Importante:* Enviar comprovante do PIX após o pagamento para confirmação do pedido.`;
-    
     // Salvar pedido com dados PIX
     const newOrder = {
       id: orderId,
