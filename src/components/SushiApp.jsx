@@ -42,7 +42,8 @@ const SushiApp = () => {
       available: true,
       popular: true,
       promocaoDoDia: true,
-      desconto: 15
+      desconto: 15,
+      estoque: 12
     },
     {
       id: 2,
@@ -53,7 +54,8 @@ const SushiApp = () => {
       category: 'Combos',
       rating: 4.7,
       available: true,
-      popular: false
+      popular: false,
+      estoque: 8
     },
     {
       id: 3,
@@ -66,7 +68,8 @@ const SushiApp = () => {
       available: true,
       popular: false,
       promocaoDoDia: true,
-      desconto: 20
+      desconto: 20,
+      estoque: 3
     },
     {
       id: 4,
@@ -370,12 +373,36 @@ const SushiApp = () => {
 
   // Funções do carrinho
   const addToCart = (product) => {
+    // Verificar se há estoque disponível
+    if (product.estoque !== undefined && product.estoque <= 0) {
+      setNotification({
+        type: 'error',
+        message: 'Produto sem estoque disponível!',
+        timestamp: Date.now()
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
+    // Verificar se quantidade no carrinho + 1 não excede estoque
+    const existingItem = cart.find(item => item.id === product.id);
+    const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
+    
+    if (product.estoque !== undefined && currentQuantityInCart >= product.estoque) {
+      setNotification({
+        type: 'error',
+        message: `Apenas ${product.estoque} unidades disponíveis!`,
+        timestamp: Date.now()
+      });
+      setTimeout(() => setNotification(null), 3000);
+      return;
+    }
+
     const productWithDiscountedPrice = {
       ...product,
       price: getFinalPrice(product) // Usar preço final (com ou sem desconto)
     };
     
-    const existingItem = cart.find(item => item.id === product.id);
     if (existingItem) {
       setCart(cart.map(item => 
         item.id === product.id 
@@ -385,9 +412,22 @@ const SushiApp = () => {
     } else {
       setCart([...cart, { ...productWithDiscountedPrice, quantity: 1 }]);
     }
+
+    // Diminuir estoque do produto
+    if (product.estoque !== undefined) {
+      updateProduct(product.id, { estoque: product.estoque - 1 });
+    }
   };
 
   const removeFromCart = (productId) => {
+    const itemToRemove = cart.find(item => item.id === productId);
+    if (itemToRemove) {
+      // Restaurar estoque ao remover item do carrinho
+      const product = sushiMenu.find(p => p.id === productId);
+      if (product && product.estoque !== undefined) {
+        updateProduct(productId, { estoque: product.estoque + itemToRemove.quantity });
+      }
+    }
     setCart(cart.filter(item => item.id !== productId));
   };
 
@@ -395,6 +435,27 @@ const SushiApp = () => {
     if (newQuantity === 0) {
       removeFromCart(productId);
     } else {
+      const currentItem = cart.find(item => item.id === productId);
+      const product = sushiMenu.find(p => p.id === productId);
+      
+      if (currentItem && product && product.estoque !== undefined) {
+        const quantityDifference = newQuantity - currentItem.quantity;
+        
+        // Verificar se há estoque suficiente para o aumento
+        if (quantityDifference > 0 && product.estoque < quantityDifference) {
+          setNotification({
+            type: 'error',
+            message: `Apenas ${product.estoque} unidades disponíveis!`,
+            timestamp: Date.now()
+          });
+          setTimeout(() => setNotification(null), 3000);
+          return;
+        }
+        
+        // Atualizar estoque baseado na diferença
+        updateProduct(productId, { estoque: product.estoque - quantityDifference });
+      }
+      
       setCart(cart.map(item => 
         item.id === productId 
           ? { ...item, quantity: newQuantity }
@@ -916,6 +977,23 @@ ${orderItems}
         <div>
           <h3 className="font-semibold text-lg">{product.name}</h3>
           <p className="text-custom-gray-500 text-sm mt-1">{product.description}</p>
+          {product.estoque !== undefined && (
+            <div className="mt-2">
+              {product.estoque > 0 ? (
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  product.estoque <= 3 
+                    ? 'bg-orange-100 text-orange-600' 
+                    : 'bg-green-100 text-green-600'
+                }`}>
+                  {product.estoque <= 3 ? '⚠️' : '✅'} {product.estoque} disponíveis
+                </span>
+              ) : (
+                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                  ❌ Sem estoque
+                </span>
+              )}
+            </div>
+          )}
         </div>
         
         <div className="flex items-center justify-between">
@@ -950,9 +1028,18 @@ ${orderItems}
           {product.available && !isAdmin && (
             <button
               onClick={() => addToCart(product)}
-              className="btn-primary group-hover:scale-105 transition-transform duration-200"
+              disabled={product.estoque !== undefined && product.estoque <= 0}
+              className={`group-hover:scale-105 transition-transform duration-200 ${
+                product.estoque !== undefined && product.estoque <= 0
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed px-4 py-2 rounded-xl font-medium'
+                  : 'btn-primary'
+              }`}
             >
-              <Plus className="w-5 h-5" />
+              {product.estoque !== undefined && product.estoque <= 0 ? (
+                <span className="text-sm">Sem estoque</span>
+              ) : (
+                <Plus className="w-5 h-5" />
+              )}
             </button>
           )}
           
@@ -1560,7 +1647,20 @@ ${orderItems}
                   <div>
                     <h4 className="font-semibold">{product.name}</h4>
                     <p className="text-custom-gray-500 text-sm">{product.category}</p>
-                    <p className="font-bold text-primary">R$ {product.price.toFixed(2)}</p>
+                    <div className="flex items-center space-x-2">
+                      <p className="font-bold text-primary">R$ {product.price.toFixed(2)}</p>
+                      {product.estoque !== undefined && (
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          product.estoque === 0 
+                            ? 'bg-red-100 text-red-600'
+                            : product.estoque <= 3 
+                              ? 'bg-orange-100 text-orange-600' 
+                              : 'bg-green-100 text-green-600'
+                        }`}>
+                          Estoque: {product.estoque}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
@@ -1818,24 +1918,45 @@ ${orderItems}
                 {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
               </div>
               
-              <div>
-                <label className="block text-sm font-medium mb-2">Desconto (%)</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={editData.desconto || ''}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value) || 0;
-                    setEditData({...editData, desconto: value > 0 ? value : null});
-                  }}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Ex: 15 (para 15% de desconto)"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Deixe vazio para sem desconto. Aplicado automaticamente quando há desconto.
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Desconto (%)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={editData.desconto || ''}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      setEditData({...editData, desconto: value > 0 ? value : null});
+                    }}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Ex: 15 (para 15% de desconto)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Deixe vazio para sem desconto.
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2">Estoque</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={editData.estoque || ''}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value) || 0;
+                      setEditData({...editData, estoque: value >= 0 ? value : 0});
+                    }}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Ex: 10 (unidades disponíveis)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Quantidade disponível para venda.
+                  </p>
+                </div>
               </div>
               
               <div>
