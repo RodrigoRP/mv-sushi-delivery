@@ -901,7 +901,8 @@ const SushiApp = () => {
         </div>
       </div>
       
-      <div className="flex justify-center space-x-2 overflow-x-auto scrollbar-hide pb-2">
+      <div className="flex space-x-2 overflow-x-scroll pb-2 px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}>
+        <div className="flex space-x-2 min-w-max">
         {categories.map(category => (
           <button
             key={category}
@@ -916,6 +917,7 @@ const SushiApp = () => {
             {category}
           </button>
         ))}
+        </div>
       </div>
     </div>
   );
@@ -1200,59 +1202,59 @@ const SushiApp = () => {
       isCartOpen ? 'translate-x-0' : 'translate-x-full'
     }`}>
       <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <div className="flex items-center space-x-2">
-            <ShoppingCart className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-semibold">Seu Pedido</h2>
+            <ShoppingCart className="w-5 h-5 text-green-600" />
+            <h2 className="text-lg font-semibold">Seu Pedido</h2>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4">
           {cart.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="text-4xl mb-4">🛒</div>
-              <h3 className="text-lg font-semibold mb-2">Carrinho vazio</h3>
-              <p className="text-custom-gray-500">Adicione alguns produtos deliciosos!</p>
+            <div className="text-center py-12">
+              <div className="text-3xl mb-3">🛒</div>
+              <h3 className="text-base font-semibold mb-1">Carrinho vazio</h3>
+              <p className="text-gray-500 text-sm">Adicione alguns produtos deliciosos!</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {cart.map(item => (
-                <div key={item.id} className="flex items-center space-x-4 p-4 border border-gray-200 rounded-xl">
+                <div key={item.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-16 h-16 object-cover rounded-lg"
+                    className="w-12 h-12 object-cover rounded-lg flex-shrink-0"
                   />
-                  <div className="flex-1">
-                    <h4 className="font-semibold">{item.name}</h4>
-                    <p className="text-primary font-bold">R$ {item.price.toFixed(2)}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm truncate">{item.name}</h4>
+                    <p className="text-green-600 font-semibold text-sm">R$ {item.price.toFixed(2)}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
+                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
                     >
-                      <Minus className="w-4 h-4" />
+                      <Minus className="w-3 h-3" />
                     </button>
-                    <span className="w-8 text-center font-semibold">{item.quantity}</span>
+                    <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-red-600 transition-colors duration-200"
+                      className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors duration-200"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3 h-3" />
                     </button>
                   </div>
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -1261,17 +1263,17 @@ const SushiApp = () => {
         </div>
         
         {cart.length > 0 && (
-          <div className="border-t p-6 space-y-4">
-            <div className="flex justify-between items-center text-xl font-bold">
-              <span>Total:</span>
-              <span className="text-primary">R$ {getTotalPrice().toFixed(2)}</span>
+          <div className="border-t border-gray-100 p-4 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-600 text-sm">Total:</span>
+              <span className="text-green-600 font-bold text-lg">R$ {getTotalPrice().toFixed(2)}</span>
             </div>
             <button
               onClick={() => {
                 setIsCheckoutOpen(true);
                 setIsCartOpen(false);
               }}
-              className="w-full btn-primary text-lg py-4"
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 text-sm"
             >
               Finalizar Pedido
             </button>
