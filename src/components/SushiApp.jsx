@@ -776,41 +776,25 @@ const SushiApp = () => {
 
   // Componente Hero Section
   const HeroSection = () => (
-    <section className="relative h-72 md:h-80 flex items-center justify-center text-white">
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-4.0.3)' }}
-      />
-      <div className="overlay-dark" />
-      
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-        <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-shadow tracking-wide">Autêntica Culinária Japonesa</h2>
-        <p className="text-lg md:text-xl mb-6 md:mb-8 text-shadow font-light tracking-wide">São Francisco de Assis e Região</p>
+    <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-12 md:py-16">
+      <div className="max-w-6xl mx-auto px-4 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Autêntica Culinária Japonesa</h2>
+        <p className="text-gray-600 mb-6">São Francisco de Assis e Região</p>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
           <a 
             href="https://wa.me/5555996005343" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="card backdrop-blur-custom bg-white/10 border border-white/20 hover:bg-white/20 transition-all duration-200"
+            className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
           >
-            <div className="flex items-center justify-center space-x-3">
-              <MessageCircle className="w-5 h-5 text-green-400" />
-              <div>
-                <p className="font-semibold text-sm">(55) 99600-5343</p>
-                <p className="text-xs opacity-80">WhatsApp</p>
-              </div>
-            </div>
+            <MessageCircle className="w-4 h-4" />
+            <span>(55) 99600-5343</span>
           </a>
           
-          <div className="card backdrop-blur-custom bg-white/10 border border-white/20">
-            <div className="flex items-center justify-center space-x-3">
-              <Clock className="w-5 h-5 text-secondary" />
-              <div>
-                <p className="font-semibold text-sm">Quinta e Sexta</p>
-                <p className="text-xs opacity-80">19:00 - 22:00</p>
-              </div>
-            </div>
+          <div className="flex items-center space-x-2 text-gray-600 text-sm">
+            <Clock className="w-4 h-4" />
+            <span>Qui-Sex: 19:00-22:00</span>
           </div>
         </div>
       </div>
@@ -837,45 +821,94 @@ const SushiApp = () => {
     const promocaoProduct = promocaoProducts[currentPromoIndex];
 
     return (
-      <section className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-        <div className="relative overflow-hidden bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-3xl p-8 text-white shadow-2xl">
-          {/* Background pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full bg-repeat" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }} />
-          </div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-6">
+      <section className="max-w-6xl mx-auto px-4 py-4">
+        <div className="bg-red-500 rounded-lg p-4 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-xl">🔥</span>
               <div>
-                <div className="flex items-center space-x-3 mb-2">
-                  <span className="text-3xl">🔥</span>
-                  <h2 className="text-2xl md:text-3xl font-bold">PROMOÇÃO DO DIA</h2>
-                  <span className="bg-yellow-400 text-red-800 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                    OFERTA ESPECIAL
-                  </span>
-                </div>
-                <p className="text-red-100 text-lg">Aproveite agora por tempo limitado!</p>
+                <h2 className="font-bold text-lg">Promoção do Dia</h2>
+                <p className="text-red-100 text-sm">{promocaoProduct.name}</p>
               </div>
-              <div className="hidden md:block text-right">
-                <div className="text-xs text-red-200 mb-1">ECONOMIZE HOJE</div>
-                <div className="text-2xl font-bold text-yellow-300">
-                  {promocaoProduct.desconto ? `${promocaoProduct.desconto}% OFF` : 'OFERTA ESPECIAL'}
-                </div>
-                {promocaoProducts.length > 1 && (
-                  <div className="text-xs text-red-200 mt-1">
-                    {currentPromoIndex + 1} de {promocaoProducts.length} ofertas
-                  </div>
-                )}
-              </div>
+              {promocaoProduct.desconto && (
+                <span className="bg-yellow-400 text-red-800 px-2 py-1 rounded text-sm font-bold">
+                  -{promocaoProduct.desconto}%
+                </span>
+              )}
             </div>
-            
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <div className="grid md:grid-cols-2 gap-6 items-center">
-                <div className="relative">
-                  <img
-                    src={promocaoProduct.image}
+            <div className="text-right">
+              <div className="text-lg font-bold">
+                R$ {getDiscountedPrice(promocaoProduct).toFixed(2)}
+              </div>
+              {promocaoProduct.desconto && (
+                <div className="text-red-200 text-sm line-through">
+                  R$ {promocaoProduct.price.toFixed(2)}
+                </div>
+              )}
+            </div>
+        </div>
+      </section>
+    );
+  };
+
+  // Componente Search & Filter
+  const SearchAndFilter = () => (
+    <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <div className="relative max-w-md">
+          <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
+            id="search-products"
+            name="search"
+            type="text"
+            placeholder="Buscar produtos..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+          />
+        </div>
+      </div>
+      
+      <div className="flex space-x-2 overflow-x-auto scrollbar-hide pb-2">
+        {categories.map(category => (
+          <button
+            key={category}
+            onClick={() => setSelectedCategory(category)}
+            className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
+              selectedCategory === category
+                ? 'bg-green-500 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {category === 'Populares' && '⭐ '}
+            {category}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Componente Product Grid  
+  const ProductGrid = () => (
+    <div className="max-w-6xl mx-auto px-4 pb-8">
+      {filteredProducts.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="text-4xl mb-4">🔍</div>
+          <h3 className="text-lg font-semibold mb-2">Nenhum produto encontrado</h3>
+          <p className="text-gray-500">Tente buscar por outro termo ou categoria</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredProducts.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  // Componente Product Card
                     alt={promocaoProduct.name}
                     className="w-full h-48 md:h-56 object-cover rounded-xl shadow-lg"
                   />
@@ -1015,36 +1048,36 @@ const SushiApp = () => {
 
   // Componente Product Card
   const ProductCard = ({ product }) => (
-    <div className={`card group ${!product.available ? 'opacity-50' : ''}`}>
-      <div className="relative mb-4">
+    <div className={`bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 group ${!product.available ? 'opacity-50' : ''}`}>
+      <div className="relative mb-3">
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-48 object-cover rounded-xl"
+          className="w-full h-32 object-cover rounded-lg"
         />
         {product.promocaoDoDia && (
-          <span className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 animate-pulse">
+          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
             <span>🔥</span>
-            <span>PROMOÇÃO</span>
+            <span>PROMO</span>
           </span>
         )}
         {product.popular && !product.promocaoDoDia && (
-          <span className="absolute top-3 left-3 badge-popular flex items-center space-x-1">
+          <span className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
             <Star className="w-3 h-3 fill-current" />
-            <span>Popular</span>
+            <span>Top</span>
           </span>
         )}
         {!product.available && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-xl flex items-center justify-center">
-            <span className="text-white font-semibold">Indisponível</span>
+          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+            <span className="text-white font-semibold text-sm">Indisponível</span>
           </div>
         )}
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <h3 className="font-semibold text-lg">{product.name}</h3>
-          <p className="text-custom-gray-500 text-sm mt-1">{product.description}</p>
+          <h3 className="font-semibold text-base">{product.name}</h3>
+          <p className="text-gray-500 text-xs mt-1 line-clamp-2">{product.description}</p>
           {product.estoque !== undefined && (
             <div className="mt-2">
               {product.estoque > 0 ? (
@@ -1065,48 +1098,46 @@ const SushiApp = () => {
         </div>
         
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              <Star className="w-4 h-4 text-yellow-400 fill-current" />
-              <span className="text-sm font-medium">{product.rating}</span>
+          <div className="flex-1">
+            <div className="flex items-center space-x-1 mb-1">
+              <Star className="w-3 h-3 text-yellow-400 fill-current" />
+              <span className="text-xs text-gray-600">{product.rating}</span>
             </div>
-            <div className="flex flex-col items-end">
+            <div className="flex items-center space-x-2">
               {product.desconto && product.desconto > 0 ? (
                 <>
-                  <span className="text-sm text-gray-400 line-through">
+                  <span className="text-xs text-gray-400 line-through">
                     R$ {product.price.toFixed(2)}
                   </span>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-lg font-bold text-green-600">
                     R$ {getFinalPrice(product).toFixed(2)}
+                  </span>
+                  <span className="bg-red-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
+                    -{product.desconto}%
                   </span>
                 </>
               ) : (
-                <span className="text-2xl font-bold text-primary">
+                <span className="text-lg font-bold text-gray-800">
                   R$ {getFinalPrice(product).toFixed(2)}
                 </span>
               )}
             </div>
-            {product.desconto && product.desconto > 0 && (
-              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                -{product.desconto}%
-              </span>
-            )}
           </div>
           
           {product.available && !isAdmin && (
             <button
               onClick={() => addToCart(product)}
               disabled={product.estoque !== undefined && product.estoque <= 0}
-              className={`group-hover:scale-105 transition-transform duration-200 ${
+              className={`p-2 rounded-lg transition-all duration-200 ${
                 product.estoque !== undefined && product.estoque <= 0
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed px-4 py-2 rounded-xl font-medium'
-                  : 'btn-primary'
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md'
               }`}
             >
               {product.estoque !== undefined && product.estoque <= 0 ? (
-                <span className="text-sm">Sem estoque</span>
+                <X className="w-4 h-4" />
               ) : (
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4" />
               )}
             </button>
           )}
