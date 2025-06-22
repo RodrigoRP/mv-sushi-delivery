@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
+import QRCode from 'qrcode.react';
 import { 
   ShoppingCart, 
   Search, 
@@ -24,7 +25,9 @@ import {
   Edit3,
   Save,
   Trash2,
-  LogOut
+  LogOut,
+  Copy,
+  Check
 } from 'lucide-react';
 
 const SushiApp = () => {
@@ -273,6 +276,9 @@ const SushiApp = () => {
   const [notification, setNotification] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showPixPayment, setShowPixPayment] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [pixCopied, setPixCopied] = useState(false);
   
   // Configurações iniciais da loja
   const initialStoreSettings = {
@@ -355,6 +361,66 @@ const SushiApp = () => {
 
     return () => clearInterval(backupInterval);
   }, [sushiMenu, storeSettings]);
+
+  // Funções PIX
+  const generatePixPayload = (amount, orderId) => {
+    const pixKey = '12345678900'; // CPF: 123.456.789-00
+    const merchantName = 'M.V. SUSHI';
+    const merchantCity = 'SAO FRANCISCO DE ASSIS';
+    const txId = `MV-${orderId}`;
+    
+    // Função auxiliar para calcular CRC16
+    const crc16 = (data) => {
+      let crc = 0xFFFF;
+      for (let i = 0; i < data.length; i++) {
+        crc ^= data.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          if (crc & 0x8000) {
+            crc = (crc << 1) ^ 0x1021;
+          } else {
+            crc = crc << 1;
+          }
+        }
+      }
+      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+    };
+    
+    // Função auxiliar para formar EMV
+    const emv = (id, value) => {
+      const len = value.length.toString().padStart(2, '0');
+      return `${id}${len}${value}`;
+    };
+    
+    // Montar payload PIX
+    let payload = '';
+    payload += emv('00', '01'); // Payload Format Indicator
+    payload += emv('01', '12'); // Point of Initiation Method
+    
+    // Merchant Account Information
+    let merchantAccount = '';
+    merchantAccount += emv('00', 'BR.GOV.BCB.PIX'); // GUI
+    merchantAccount += emv('01', pixKey); // PIX key
+    payload += emv('26', merchantAccount);
+    
+    payload += emv('52', '0000'); // Merchant Category Code
+    payload += emv('53', '986'); // Transaction Currency (BRL)
+    payload += emv('54', amount.toFixed(2)); // Transaction Amount
+    payload += emv('58', 'BR'); // Country Code
+    payload += emv('59', merchantName.substring(0, 25)); // Merchant Name
+    payload += emv('60', merchantCity.substring(0, 15)); // Merchant City
+    
+    // Additional Data Field
+    let additionalData = emv('05', txId);
+    payload += emv('62', additionalData);
+    
+    payload += '6304'; // CRC16 placeholder
+    
+    // Calcular e adicionar CRC16
+    const checksum = crc16(payload);
+    payload = payload.slice(0, -4) + checksum;
+    
+    return payload;
+  };
 
   // Categorias disponíveis
   const categories = ['Todos', 'Populares', 'Combos', 'Uramaki', 'Sashimis', 'Temakis', 'Hot Rolls', 'Poke', 'Entrada'];
@@ -486,11 +552,18 @@ const SushiApp = () => {
 
   // Função de checkout
   const handleCheckout = (customerData) => {
+    const orderId = Date.now();
+    const totalAmount = getTotalPrice();
+    
+    // Gerar dados PIX
+    const pixPayload = generatePixPayload(totalAmount, orderId);
+    const pixTxId = `MV-${orderId}`;
+    
     const orderItems = cart.map(item => 
       `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`
     ).join('\\n');
 
-    const total = getTotalPrice().toFixed(2);
+    const total = totalAmount.toFixed(2);
     
     const whatsappMessage = `🍣 *PEDIDO M.V. SUSHI DELIVERY*
 
@@ -503,20 +576,24 @@ ${orderItems}
 
 💰 *TOTAL: R$ ${total}*
 
-💳 *PIX:* 55996005343
+📱 *Código PIX:* ${pixPayload}
 
 ⚠️ *Importante:* Enviar comprovante do PIX após o pagamento para confirmação do pedido.`;
 
     const whatsappUrl = `https://wa.me/5555996005343?text=${encodeURIComponent(whatsappMessage)}`;
     
-    // Salvar pedido
+    // Salvar pedido com dados PIX
     const newOrder = {
-      id: Date.now(),
+      id: orderId,
       customer: customerData,
       items: [...cart],
-      total: getTotalPrice(),
+      total: totalAmount,
       date: new Date().toLocaleString('pt-BR'),
-      status: 'Pendente'
+      status: 'Pendente',
+      pix_payload: pixPayload,
+      pix_txid: pixTxId,
+      pix_amount: totalAmount,
+      pix_status: 'PENDING'
     };
     
     setOrders([newOrder, ...orders]);
@@ -524,7 +601,9 @@ ${orderItems}
     setIsCheckoutOpen(false);
     setIsCartOpen(false);
     
-    window.open(whatsappUrl, '_blank');
+    // Abrir tela de pagamento PIX
+    setCurrentOrder(newOrder);
+    setShowPixPayment(true);
   };
 
   // Funções admin
@@ -1421,6 +1500,143 @@ ${orderItems}
     );
   };
 
+  // Componente PIX Payment Modal
+  const PixPaymentModal = () => {
+    const copyPixCode = async () => {
+      if (currentOrder?.pix_payload) {
+        try {
+          await navigator.clipboard.writeText(currentOrder.pix_payload);
+          setPixCopied(true);
+          setNotification({
+            type: 'success',
+            message: 'Código PIX copiado!',
+            timestamp: Date.now()
+          });
+          setTimeout(() => {
+            setPixCopied(false);
+            setNotification(null);
+          }, 3000);
+        } catch (err) {
+          console.error('Erro ao copiar código PIX:', err);
+          setNotification({
+            type: 'error',
+            message: 'Erro ao copiar código PIX',
+            timestamp: Date.now()
+          });
+          setTimeout(() => setNotification(null), 3000);
+        }
+      }
+    };
+
+    const sendWhatsApp = () => {
+      const orderItems = currentOrder.items.map(item => 
+        `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`
+      ).join('\\n');
+
+      const whatsappMessage = `🍣 *PEDIDO M.V. SUSHI DELIVERY*
+
+👤 *Cliente:* ${currentOrder.customer.name}
+📱 *Telefone:* ${currentOrder.customer.phone}
+📍 *Endereço:* ${currentOrder.customer.address}
+
+🛒 *Itens do Pedido:*
+${orderItems}
+
+💰 *TOTAL: R$ ${currentOrder.total.toFixed(2)}*
+
+📱 *ID do Pedido:* ${currentOrder.pix_txid}
+
+⚠️ *Importante:* Enviar comprovante do PIX após o pagamento para confirmação do pedido.`;
+
+      const whatsappUrl = `https://wa.me/5555996005343?text=${encodeURIComponent(whatsappMessage)}`;
+      window.open(whatsappUrl, '_blank');
+    };
+
+    if (!showPixPayment || !currentOrder) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Pagamento PIX</h2>
+              <button
+                onClick={() => {
+                  setShowPixPayment(false);
+                  setCurrentOrder(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <div className="text-center space-y-6">
+              {/* QR Code */}
+              <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block">
+                <QRCode 
+                  value={currentOrder.pix_payload}
+                  size={200}
+                  level="M"
+                  includeMargin={true}
+                />
+              </div>
+              
+              {/* Informações do pedido */}
+              <div className="space-y-2">
+                <p className="text-lg font-semibold">R$ {currentOrder.total.toFixed(2)}</p>
+                <p className="text-sm text-gray-600">ID: {currentOrder.pix_txid}</p>
+                <p className="text-sm text-gray-600">PIX: CPF 123.456.789-00</p>
+              </div>
+              
+              {/* Botão copiar código */}
+              <button
+                onClick={copyPixCode}
+                className={`w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                  pixCopied 
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+              >
+                {pixCopied ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    <span>Código Copiado!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-5 h-5" />
+                    <span>Copiar Código PIX</span>
+                  </>
+                )}
+              </button>
+              
+              {/* Botão WhatsApp */}
+              <button
+                onClick={sendWhatsApp}
+                className="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl font-medium bg-green-500 hover:bg-green-600 text-white transition-all duration-200"
+              >
+                <MessageCircle className="w-5 h-5" />
+                <span>Enviar Pedido via WhatsApp</span>
+              </button>
+              
+              {/* Instruções */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left">
+                <h4 className="font-semibold text-blue-800 mb-2">📱 Como pagar:</h4>
+                <ol className="text-sm text-blue-700 space-y-1">
+                  <li>1. Abra seu banco ou app de pagamentos</li>
+                  <li>2. Escaneie o QR Code ou cole o código PIX</li>
+                  <li>3. Confirme o pagamento de R$ {currentOrder.total.toFixed(2)}</li>
+                  <li>4. Envie o comprovante via WhatsApp</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Componente Admin Login Modal
   const AdminLoginModal = () => {
     const [password, setPassword] = useState('');
@@ -2179,6 +2395,7 @@ ${orderItems}
       <Footer />
       <CartSidebar />
       <CheckoutModal />
+      <PixPaymentModal />
       <AdminLoginModal />
       <Notification />
       

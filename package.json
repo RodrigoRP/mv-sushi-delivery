@@ -9,6 +9,8 @@
     "@testing-library/user-event": "^14.4.3",
     "firebase": "^11.9.1",
     "lucide-react": "^0.263.1",
+    "qrcode": "^1.5.4",
+    "qrcode.react": "^4.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
