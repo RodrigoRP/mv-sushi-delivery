@@ -1529,24 +1529,33 @@ ${orderItems}
     };
 
     const sendWhatsApp = () => {
+      // Calcular data de retirada estimada (30-45 min a partir de agora)
+      const now = new Date();
+      const estimatedTime = new Date(now.getTime() + 45 * 60000); // 45 minutos
+      const dataRetirada = estimatedTime.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
       const orderItems = currentOrder.items.map(item => 
-        `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`
-      ).join('\\n');
+        `• ${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`
+      ).join('\n');
 
-      const whatsappMessage = `🍣 *PEDIDO M.V. SUSHI DELIVERY*
+      const whatsappMessage = `🔔 *Pedido #${currentOrder.id} – M.V. Sushi*
+📅 *Data retirada:* ${dataRetirada}
+👤 *${currentOrder.customer.name}* – ${currentOrder.customer.phone}
+📍 ${currentOrder.customer.address}
 
-👤 *Cliente:* ${currentOrder.customer.name}
-📱 *Telefone:* ${currentOrder.customer.phone}
-📍 *Endereço:* ${currentOrder.customer.address}
-
-🛒 *Itens do Pedido:*
+🍣 *Itens:*
 ${orderItems}
 
-💰 *TOTAL: R$ ${currentOrder.total.toFixed(2)}*
-
-📱 *ID do Pedido:* ${currentOrder.pix_txid}
-
-⚠️ *Importante:* Enviar comprovante do PIX após o pagamento para confirmação do pedido.`;
+💰 *Total:* R$ ${currentOrder.total.toFixed(2)}
+*PIX gerado:* ${currentOrder.pix_txid}
+📸 *Assim que pagar, guarde o comprovante.*
+*Você receberá confirmação automática em até 1 minuto.*`;
 
       const whatsappUrl = `https://wa.me/5555996005343?text=${encodeURIComponent(whatsappMessage)}`;
       window.open(whatsappUrl, '_blank');
