@@ -365,8 +365,8 @@ const SushiApp = () => {
   // Funções PIX
   const generatePixPayload = (amount, orderId) => {
     const pixKey = '+5555996005343'; // Telefone completo com código do país
-    const merchantName = 'mv-sushi-delivery'; // Sem pontos e maiúsculas
-    const merchantCity = 'Sao Francisco'; // Sem acentos, primeira letra maiúscula
+    const merchantName = 'M.V. SUSHI';
+    const merchantCity = 'SAO FRANCISCO';
     const txId = `MV${orderId}`.substring(0, 25); // Máximo 25 caracteres
     
     // Função auxiliar para calcular CRC16 CCITT
