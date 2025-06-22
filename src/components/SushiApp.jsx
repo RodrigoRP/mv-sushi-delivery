@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
+import { useVersionCheck } from '../hooks/useVersionCheck';
 import { QRCodeSVG } from 'qrcode.react';
 import { 
   ShoppingCart, 
@@ -27,7 +28,8 @@ import {
   Trash2,
   LogOut,
   Copy,
-  Check
+  Check,
+  RotateCcw
 } from 'lucide-react';
 
 const SushiApp = () => {
@@ -275,6 +277,9 @@ const SushiApp = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [notification, setNotification] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  
+  // Hook para verificar atualizações
+  const { hasUpdate, applyUpdate, dismissUpdate } = useVersionCheck();
   const [isInitialized, setIsInitialized] = useState(false);
   const [showPixPayment, setShowPixPayment] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
@@ -2272,6 +2277,37 @@ ${orderItems}
     );
   }
 
+  // Componente de Notificação de Atualização
+  const UpdateNotification = () => (
+    hasUpdate && (
+      <div className="fixed top-4 right-4 bg-blue-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
+        <div className="flex items-start space-x-3">
+          <RotateCcw className="w-5 h-5 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm">Nova versão disponível!</h4>
+            <p className="text-xs text-blue-100 mt-1">
+              Recarregue a página para ver as últimas atualizações.
+            </p>
+            <div className="flex space-x-2 mt-3">
+              <button
+                onClick={applyUpdate}
+                className="bg-white text-blue-500 px-3 py-1 rounded text-xs font-semibold hover:bg-blue-50 transition-colors"
+              >
+                Atualizar
+              </button>
+              <button
+                onClick={dismissUpdate}
+                className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition-colors"
+              >
+                Depois
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  );
+
   // Render principal  
   if (isAdmin) {
     return (
@@ -2280,6 +2316,7 @@ ${orderItems}
         <AdminDashboard />
         <ProductEditModal />
         <Notification />
+        <UpdateNotification />
       </div>
     );
   }
@@ -2297,6 +2334,7 @@ ${orderItems}
       <PixPaymentModal />
       <AdminLoginModal />
       <Notification />
+      <UpdateNotification />
       
       {/* Overlay quando cart estiver aberto */}
       {isCartOpen && (

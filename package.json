@@ -1,6 +1,6 @@
 {
   "name": "mv-sushi-delivery",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sistema de delivery completo para MV Sushi - São Francisco de Assis, RS",
   "private": true,
   "dependencies": {
@@ -18,6 +18,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "prebuild": "node scripts/update-version.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
