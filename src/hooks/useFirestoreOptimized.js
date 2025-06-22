@@ -88,6 +88,7 @@ export const useFirestoreMenu = (initialMenu) => {
         unsubscribe();
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Array vazio - configurar apenas uma vez
 
   // Atualizar menu completo
@@ -232,6 +233,7 @@ export const useFirestoreSettings = (initialSettings) => {
         unsubscribe();
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Array vazio - configurar apenas uma vez
 
   const updateSettings = useCallback(async (newSettings) => {

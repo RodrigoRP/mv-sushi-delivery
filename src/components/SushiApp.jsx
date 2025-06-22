@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-// import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
-import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
+import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
+// import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { 
   ShoppingCart, 
   Search, 
