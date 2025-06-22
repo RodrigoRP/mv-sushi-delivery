@@ -638,8 +638,8 @@ ${orderItems}
     <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl overflow-hidden shadow-lg">
               <img 
                 src="/logo.png" 
                 alt="MV Sushi Logo" 
@@ -649,26 +649,31 @@ ${orderItems}
                   e.target.nextSibling.style.display = 'flex';
                 }}
               />
-              <div className="gradient-primary w-12 h-12 rounded-2xl flex items-center justify-center text-2xl" style={{display: 'none'}}>
+              <div className="gradient-primary w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center text-lg md:text-2xl" style={{display: 'none'}}>
                 🍣
               </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-wide">MV Sushi</h1>
-              <p className="text-sm text-custom-gray-500 font-light">Autêntica Culinária Japonesa</p>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold tracking-wide truncate">MV Sushi</h1>
+              <p className="hidden md:block text-sm text-custom-gray-500 font-light">Autêntica Culinária Japonesa</p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-6">
-            <div className="hidden md:flex items-center space-x-4 text-sm">
+          <div className="flex items-center space-x-3 md:space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 text-sm">
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4 text-custom-gray-500" />
                 <span>{storeSettings.estimatedTime}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                <span>4.9</span>
-              </div>
+              <a 
+                href="https://wa.me/5555996005343" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 text-green-600 hover:text-green-700"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>(55) 99600-5343</span>
+              </a>
               <div className={`px-2 py-1 rounded-full text-xs font-medium ${
                 storeSettings.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
@@ -719,7 +724,7 @@ ${orderItems}
 
   // Componente Hero Section
   const HeroSection = () => (
-    <section className="relative h-96 flex items-center justify-center text-white">
+    <section className="relative h-72 md:h-80 flex items-center justify-center text-white">
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-4.0.3)' }}
@@ -727,36 +732,31 @@ ${orderItems}
       <div className="overlay-dark" />
       
       <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-        <h2 className="text-5xl font-bold mb-4 text-shadow">Autêntica Culinária Japonesa</h2>
-        <p className="text-xl mb-8 text-shadow">São Francisco de Assis e Região</p>
+        <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-shadow">Autêntica Culinária Japonesa</h2>
+        <p className="text-lg md:text-xl mb-6 md:mb-8 text-shadow">São Francisco de Assis e Região</p>
         
-        <div className="grid md:grid-cols-3 gap-4 mt-12">
-          <div className="card backdrop-blur-custom bg-white/10 border border-white/20">
-            <div className="flex items-center space-x-3">
-              <Phone className="w-6 h-6 text-secondary" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
+          <a 
+            href="https://wa.me/5555996005343" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="card backdrop-blur-custom bg-white/10 border border-white/20 hover:bg-white/20 transition-all duration-200"
+          >
+            <div className="flex items-center justify-center space-x-3">
+              <MessageCircle className="w-5 h-5 text-green-400" />
               <div>
-                <p className="font-semibold">(55) 99600-5343</p>
-                <p className="text-sm opacity-80">Encomendas</p>
+                <p className="font-semibold text-sm">(55) 99600-5343</p>
+                <p className="text-xs opacity-80">WhatsApp</p>
               </div>
             </div>
-          </div>
+          </a>
           
           <div className="card backdrop-blur-custom bg-white/10 border border-white/20">
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-6 h-6 text-secondary" />
+            <div className="flex items-center justify-center space-x-3">
+              <Clock className="w-5 h-5 text-secondary" />
               <div>
-                <p className="font-semibold">Centro - São Francisco</p>
-                <p className="text-sm opacity-80">Maurício Cardoso 1242</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="card backdrop-blur-custom bg-white/10 border border-white/20">
-            <div className="flex items-center space-x-3">
-              <Clock className="w-6 h-6 text-secondary" />
-              <div>
-                <p className="font-semibold">Delivery {storeSettings.estimatedTime}</p>
-                <p className="text-sm opacity-80">Ingredientes limitados</p>
+                <p className="font-semibold text-sm">Quinta e Sexta</p>
+                <p className="text-xs opacity-80">19:00 - 22:00</p>
               </div>
             </div>
           </div>
@@ -772,7 +772,7 @@ ${orderItems}
     if (!promocaoProduct) return null;
 
     return (
-      <section className="max-w-7xl mx-auto px-4 py-8">
+      <section className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         <div className="relative overflow-hidden bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-3xl p-8 text-white shadow-2xl">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
