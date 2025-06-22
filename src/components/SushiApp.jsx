@@ -1545,118 +1545,6 @@ ${orderItems}
           </div>
         </div>
         
-        {/* Gerenciar Promoção do Dia */}
-        <div className="card mb-8">
-          <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-            <span className="text-2xl">🔥</span>
-            <span>Promoção do Dia</span>
-          </h3>
-          <div className="space-y-4">
-            <p className="text-custom-gray-500">Selecione qual produto será a promoção especial do dia</p>
-            
-            <div className="grid gap-4">
-              {sushiMenu.map(product => (
-                <div 
-                  key={product.id} 
-                  className={`p-4 border-2 rounded-xl transition-all duration-200 ${
-                    product.promocaoDoDia 
-                      ? 'border-red-500 bg-red-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded-lg"
-                      />
-                      <div>
-                        <h4 className="font-semibold">{product.name}</h4>
-                        <p className="text-custom-gray-500 text-sm">{product.category}</p>
-                        <p className="font-bold text-primary">R$ {product.price.toFixed(2)}</p>
-                      </div>
-                      {product.promocaoDoDia && (
-                        <div className="flex items-center space-x-2">
-                          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                            PROMOÇÃO ATIVA
-                          </span>
-                          <span className="text-2xl">🔥</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <button
-                      onClick={async () => {
-                        try {
-                          const wasPromoted = product.promocaoDoDia;
-                          
-                          if (wasPromoted) {
-                            // Se era promoção, apenas remover
-                            await updateProduct(product.id, { promocaoDoDia: false });
-                            
-                            setNotification({
-                              type: 'success',
-                              message: 'Promoção removida!',
-                              timestamp: Date.now()
-                            });
-                          } else {
-                            // Se não era promoção, primeiro remover de todos e depois ativar neste
-                            const updatePromises = sushiMenu.map(p => 
-                              updateProduct(p.id, { promocaoDoDia: false })
-                            );
-                            
-                            await Promise.all(updatePromises);
-                            await updateProduct(product.id, { promocaoDoDia: true });
-                            
-                            setNotification({
-                              type: 'success',
-                              message: `${product.name} é agora a promoção do dia!`,
-                              timestamp: Date.now()
-                            });
-                          }
-                          
-                          setTimeout(() => setNotification(null), 3000);
-                        } catch (error) {
-                          console.error('Erro ao atualizar promoção:', error);
-                          setNotification({
-                            type: 'error',
-                            message: 'Erro ao atualizar promoção. Tente novamente.',
-                            timestamp: Date.now()
-                          });
-                          setTimeout(() => setNotification(null), 3000);
-                        }
-                      }}
-                      className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
-                        product.promocaoDoDia
-                          ? 'bg-red-500 hover:bg-red-600 text-white'
-                          : 'bg-gray-100 hover:bg-red-100 text-gray-700 hover:text-red-700'
-                      }`}
-                    >
-                      {product.promocaoDoDia ? 'Remover Promoção' : 'Definir como Promoção'}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-              <div className="flex items-start space-x-3">
-                <span className="text-yellow-600 text-xl">💡</span>
-                <div>
-                  <h4 className="font-semibold text-yellow-800 mb-1">Como funciona?</h4>
-                  <ul className="text-sm text-yellow-700 space-y-1">
-                    <li>• Apenas 1 produto pode ser promoção do dia por vez</li>
-                    <li>• A promoção aparece em destaque na página principal</li>
-                    <li>• Clientes verão um banner especial com call-to-action</li>
-                    <li>• Para remover a promoção, clique em "Remover Promoção"</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         {/* Lista de produtos para admin */}
         <div className="card">
           <h3 className="text-xl font-semibold mb-4">Gerenciar Produtos</h3>
@@ -1810,7 +1698,7 @@ ${orderItems}
       }
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
       console.log('💾 handleSave chamado:', { editingProduct, editData });
       
       if (!validateForm()) {
@@ -1825,19 +1713,41 @@ ${orderItems}
 
       setSaving(true);
       
-      // Atualizar imediatamente
-      console.log('🔄 Chamando updateProduct...');
-      updateProduct(editingProduct.id, editData);
-      
-      // Simular loading e feedback
-      setTimeout(() => {
-        setSaving(false);
-        setSaved(true);
+      try {
+        // Se estamos marcando como promoção do dia, primeiro remover de todos os outros
+        if (editData.promocaoDoDia && !editingProduct.promocaoDoDia) {
+          console.log('🔄 Removendo promoção do dia de outros produtos...');
+          const updatePromises = sushiMenu
+            .filter(p => p.id !== editingProduct.id && p.promocaoDoDia)
+            .map(p => updateProduct(p.id, { promocaoDoDia: false }));
+          
+          await Promise.all(updatePromises);
+        }
+        
+        // Atualizar o produto atual
+        console.log('🔄 Chamando updateProduct...');
+        await updateProduct(editingProduct.id, editData);
+        
+        // Simular loading e feedback
         setTimeout(() => {
-          setSaved(false);
-          setEditingProduct(null);
-        }, 1500);
-      }, 300);
+          setSaving(false);
+          setSaved(true);
+          setTimeout(() => {
+            setSaved(false);
+            setEditingProduct(null);
+          }, 1500);
+        }, 300);
+        
+      } catch (error) {
+        console.error('Erro ao salvar produto:', error);
+        setSaving(false);
+        setNotification({
+          type: 'error',
+          message: 'Erro ao salvar alterações. Tente novamente.',
+          timestamp: Date.now()
+        });
+        setTimeout(() => setNotification(null), 3000);
+      }
     };
 
     if (!editingProduct) return null;
@@ -1924,7 +1834,7 @@ ${orderItems}
                   placeholder="Ex: 15 (para 15% de desconto)"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Deixe vazio para sem desconto. Só aplicado se for promoção do dia.
+                  Deixe vazio para sem desconto. Aplicado automaticamente quando há desconto.
                 </p>
               </div>
               
@@ -1970,7 +1880,7 @@ ${orderItems}
                 {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
               </div>
               
-              <div className="flex items-center space-x-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <label htmlFor="edit-product-available" className="flex items-center space-x-2">
                   <input
                     id="edit-product-available"
@@ -1993,6 +1903,21 @@ ${orderItems}
                     className="rounded text-primary focus:ring-primary"
                   />
                   <span className="text-sm font-medium">Popular</span>
+                </label>
+                
+                <label htmlFor="edit-product-promocao" className="flex items-center space-x-2">
+                  <input
+                    id="edit-product-promocao"
+                    name="promocaoDoDia"
+                    type="checkbox"
+                    checked={editData.promocaoDoDia || false}
+                    onChange={(e) => setEditData({...editData, promocaoDoDia: e.target.checked})}
+                    className="rounded text-red-500 focus:ring-red-500"
+                  />
+                  <span className="text-sm font-medium flex items-center space-x-1">
+                    <span>Promoção do Dia</span>
+                    <span className="text-red-500">🔥</span>
+                  </span>
                 </label>
               </div>
               
