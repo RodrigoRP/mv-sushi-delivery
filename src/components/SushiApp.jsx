@@ -366,10 +366,10 @@ const SushiApp = () => {
   const generatePixPayload = (amount, orderId) => {
     const pixKey = '+5555996005343'; // Telefone completo com código do país
     const merchantName = 'M.V. SUSHI';
-    const merchantCity = 'SAO FRANCISCO DE ASSIS';
+    const merchantCity = 'SAO FRANCISCO'; // Máximo 15 caracteres sem acentos
     const txId = `MV${orderId}`.substring(0, 25); // Máximo 25 caracteres
     
-    // Função auxiliar para calcular CRC16
+    // Função auxiliar para calcular CRC16 CCITT
     const crc16 = (data) => {
       let crc = 0xFFFF;
       for (let i = 0; i < data.length; i++) {
@@ -380,9 +380,10 @@ const SushiApp = () => {
           } else {
             crc = crc << 1;
           }
+          crc &= 0xFFFF; // Manter apenas 16 bits
         }
       }
-      return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+      return crc.toString(16).toUpperCase().padStart(4, '0');
     };
     
     // Função auxiliar para formar EMV
@@ -420,10 +421,15 @@ const SushiApp = () => {
     payload = payload.slice(0, -4) + checksum;
     
     // Debug temporário
-    console.log('PIX Payload gerado:', payload);
+    console.log('=== PIX DEBUG ===');
+    console.log('Payload completo:', payload);
+    console.log('Tamanho do payload:', payload.length);
     console.log('Chave PIX:', pixKey);
     console.log('Valor:', amount.toFixed(2));
     console.log('TXID:', txId);
+    console.log('Merchant City:', merchantCity);
+    console.log('CRC16:', checksum);
+    console.log('================');
     
     return payload;
   };
