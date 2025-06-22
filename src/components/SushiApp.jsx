@@ -364,7 +364,7 @@ const SushiApp = () => {
 
   // Funções PIX
   const generatePixPayload = (amount, orderId) => {
-    const pixKey = '12345678900'; // CPF: 123.456.789-00
+    const pixKey = '55996005343'; // Telefone da empresa (DDD + número)
     const merchantName = 'M.V. SUSHI';
     const merchantCity = 'SAO FRANCISCO DE ASSIS';
     const txId = `MV-${orderId}`;
@@ -1572,7 +1572,7 @@ ${orderItems}
               <div className="space-y-2">
                 <p className="text-lg font-semibold">R$ {currentOrder.total.toFixed(2)}</p>
                 <p className="text-sm text-gray-600">ID: {currentOrder.pix_txid}</p>
-                <p className="text-sm text-gray-600">PIX: CPF 123.456.789-00</p>
+                <p className="text-sm text-gray-600">PIX: (55) 99600-5343</p>
               </div>
               
               {/* Botão copiar código */}
