@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-// import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
-import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
+import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
+// import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { 
   ShoppingCart, 
   Search, 
@@ -287,21 +287,6 @@ const SushiApp = () => {
     toggleProductAvailability: firestoreToggleAvailability
   } = useFirestoreMenu(initialMenu);
 
-  // Debug: Log menu quando carregado
-  useEffect(() => {
-    if (sushiMenu && sushiMenu.length > 0) {
-      console.log('📋 Menu loaded:', sushiMenu.length, 'items');
-      sushiMenu.forEach(product => {
-        if (product.promocaoDoDia || product.desconto) {
-          console.log('🔥 Promotion product:', product.name, {
-            promocaoDoDia: product.promocaoDoDia,
-            desconto: product.desconto,
-            price: product.price
-          });
-        }
-      });
-    }
-  }, [sushiMenu]);
 
   const {
     settings: storeSettings,
@@ -428,25 +413,14 @@ const SushiApp = () => {
 
   // Funções para cálculo de desconto
   const getDiscountedPrice = (product) => {
-    console.log('🧮 getDiscountedPrice called for:', product.name, {
-      desconto: product.desconto,
-      price: product.price,
-      promocaoDoDia: product.promocaoDoDia
-    });
-    
     if (product.desconto && product.desconto > 0) {
-      const discountedPrice = product.price * (1 - product.desconto / 100);
-      console.log('💰 Discount applied:', product.price, '→', discountedPrice);
-      return discountedPrice;
+      return product.price * (1 - product.desconto / 100);
     }
-    console.log('💰 No discount applied for:', product.name);
     return product.price;
   };
 
   const getFinalPrice = (product) => {
-    const finalPrice = product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
-    console.log('🏷️ Final price for', product.name, ':', finalPrice);
-    return finalPrice;
+    return product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
   };
 
   // Função de checkout
@@ -957,7 +931,7 @@ ${orderItems}
                     R$ {product.price.toFixed(2)}
                   </span>
                   <span className="text-2xl font-bold text-primary">
-                    R$ {getDiscountedPrice(product).toFixed(2)}
+                    R$ {getFinalPrice(product).toFixed(2)}
                   </span>
                 </>
               ) : (
