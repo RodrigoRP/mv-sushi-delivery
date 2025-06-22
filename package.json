@@ -1,6 +1,6 @@
 {
   "name": "mv-sushi-delivery",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Sistema de delivery completo para MV Sushi - São Francisco de Assis, RS",
   "private": true,
   "dependencies": {

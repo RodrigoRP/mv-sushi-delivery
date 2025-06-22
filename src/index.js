@@ -12,7 +12,7 @@ root.render(
   </React.StrictMode>
 );
 
-// Registrar service worker para PWA
-serviceWorkerRegistration.register();
+// Desabilitar service worker para evitar cache agressivo
+serviceWorkerRegistration.unregister();
 
 reportWebVitals();
