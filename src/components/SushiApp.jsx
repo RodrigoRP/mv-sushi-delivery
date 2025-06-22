@@ -776,23 +776,33 @@ const SushiApp = () => {
 
   // Componente Hero Section
   const HeroSection = () => (
-    <section className="bg-gradient-to-br from-gray-50 to-gray-100 py-12 md:py-16">
-      <div className="max-w-6xl mx-auto px-4 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Autêntica Culinária Japonesa</h2>
-        <p className="text-gray-600 mb-6">São Francisco de Assis e Região</p>
+    <section className="relative bg-gradient-to-br from-gray-900 to-gray-700 py-12 md:py-16 overflow-hidden">
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+        style={{
+          backgroundImage: 'url("https://images.unsplash.com/photo-1553621042-f6e147245754?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80")',
+        }}
+      ></div>
+      <div className="relative max-w-6xl mx-auto px-4 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Autêntica Culinária Japonesa</h2>
+        <p className="text-gray-200 mb-6 flex items-center justify-center space-x-1">
+          <MapPin className="w-4 h-4" />
+          <span>São Francisco de Assis e Região</span>
+        </p>
         
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
           <a 
             href="https://wa.me/5555996005343" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors"
+            className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors shadow-lg"
           >
             <MessageCircle className="w-4 h-4" />
             <span>(55) 99600-5343</span>
           </a>
           
-          <div className="flex items-center space-x-2 text-gray-600 text-sm">
+          <div className="flex items-center space-x-2 text-gray-200 text-sm">
             <Clock className="w-4 h-4" />
             <span>Qui-Sex: 19:00-22:00</span>
           </div>
@@ -960,7 +970,7 @@ const SushiApp = () => {
           )}
         </div>
         
-        <div className="flex items-center justify-between">
+        <div className="flex items-end justify-between">
           <div className="flex-1">
             <div className="flex items-center space-x-1 mb-1">
               <Star className="w-3 h-3 text-yellow-400 fill-current" />
@@ -991,7 +1001,7 @@ const SushiApp = () => {
             <button
               onClick={() => addToCart(product)}
               disabled={product.estoque !== undefined && product.estoque <= 0}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-2 rounded-lg transition-all duration-200 ml-2 ${
                 product.estoque !== undefined && product.estoque <= 0
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md'
