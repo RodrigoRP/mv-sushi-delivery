@@ -33,7 +33,7 @@ const SushiApp = () => {
     // Combos
     {
       id: 1,
-      name: 'MV Lo Gunkan',
+      name: 'M.V. Lo Gunkan',
       price: 95.00,
       image: 'https://picsum.photos/400/300?random=1',
       description: '10 unidades (10 peças de gunkan sortidos)',
@@ -45,7 +45,7 @@ const SushiApp = () => {
     },
     {
       id: 2,
-      name: 'MV Ro Kabu',
+      name: 'M.V. Ro Kabu',
       price: 100.00,
       image: 'https://picsum.photos/400/300?random=2',
       description: 'Baixo carbo (01 temaki phila, 10 sashimis)',
@@ -56,7 +56,7 @@ const SushiApp = () => {
     },
     {
       id: 3,
-      name: 'MV Trufamaki',
+      name: 'M.V. Trufamaki',
       price: 78.00,
       image: 'https://picsum.photos/400/300?random=3',
       description: '12 peças (08 uramaki salmão especial, 2 gunkan de salmão, 2 niguiris finalizados com azeite trufado)',
@@ -67,7 +67,7 @@ const SushiApp = () => {
     },
     {
       id: 4,
-      name: 'MV Tupimaki',
+      name: 'M.V. Tupimaki',
       price: 85.00,
       image: 'https://picsum.photos/400/300?random=4',
       description: '14 peças (02 gunkan, 02 sashimis, 02 niguiris, 08 uramaki phila)',
@@ -78,7 +78,7 @@ const SushiApp = () => {
     },
     {
       id: 5,
-      name: 'MV Supreme',
+      name: 'M.V. Supreme',
       price: 299.00,
       image: 'https://picsum.photos/400/300?random=5',
       description: '80 peças - Combo especial completo',
@@ -412,7 +412,7 @@ const SushiApp = () => {
 
     const total = getTotalPrice().toFixed(2);
     
-    const whatsappMessage = `🍣 *PEDIDO MV SUSHI DELIVERY*
+    const whatsappMessage = `🍣 *PEDIDO M.V. SUSHI DELIVERY*
 
 👤 *Cliente:* ${customerData.name}
 📱 *Telefone:* ${customerData.phone}
@@ -642,7 +642,7 @@ ${orderItems}
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl overflow-hidden shadow-lg">
               <img 
                 src="/logo.png" 
-                alt="MV Sushi Logo" 
+                alt="M.V. Sushi Logo" 
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.style.display = 'none';
@@ -654,7 +654,7 @@ ${orderItems}
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg md:text-2xl font-bold tracking-wide truncate">MV Sushi</h1>
+              <h1 className="text-lg md:text-2xl font-bold tracking-wide truncate">M.V. Sushi</h1>
               <p className="hidden md:block text-sm text-custom-gray-500 font-light">Autêntica Culinária Japonesa</p>
             </div>
           </div>
@@ -732,8 +732,8 @@ ${orderItems}
       <div className="overlay-dark" />
       
       <div className="relative z-10 text-center max-w-4xl mx-auto px-4">
-        <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-shadow">Autêntica Culinária Japonesa</h2>
-        <p className="text-lg md:text-xl mb-6 md:mb-8 text-shadow">São Francisco de Assis e Região</p>
+        <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-shadow tracking-wide">Autêntica Culinária Japonesa</h2>
+        <p className="text-lg md:text-xl mb-6 md:mb-8 text-shadow font-light tracking-wide">São Francisco de Assis e Região</p>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto">
           <a 
@@ -999,7 +999,7 @@ ${orderItems}
               <div className="gradient-primary w-8 h-8 rounded-lg flex items-center justify-center text-lg">
                 🍣
               </div>
-              <h3 className="text-xl font-bold">MV Sushi</h3>
+              <h3 className="text-xl font-bold">M.V. Sushi</h3>
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
               Autêntica culinária japonesa em São Francisco de Assis e região. 
@@ -1100,7 +1100,7 @@ ${orderItems}
             {/* Copyright */}
             <div className="text-center md:text-left">
               <p className="text-gray-400 text-sm">
-                © {new Date().getFullYear()} MV Sushi Delivery. Todos os direitos reservados.
+                © {new Date().getFullYear()} M.V. Sushi Delivery. Todos os direitos reservados.
               </p>
               <p className="text-gray-500 text-xs mt-1">
                 Desenvolvido com ❤️ para São Francisco de Assis
@@ -1368,7 +1368,7 @@ ${orderItems}
               🍣
             </div>
             <h2 className="text-2xl font-bold">Admin Panel</h2>
-            <p className="text-custom-gray-500">MV Sushi Delivery</p>
+            <p className="text-custom-gray-500">M.V. Sushi Delivery</p>
           </div>
           
           <form onSubmit={handleSubmit}>
@@ -1426,7 +1426,7 @@ ${orderItems}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Dashboard Admin</h2>
-              <p className="text-custom-gray-500">Gerencie sua loja MV Sushi</p>
+              <p className="text-custom-gray-500">Gerencie sua loja M.V. Sushi</p>
               <div className="mt-2 flex items-center space-x-2 text-sm">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                 <span className="text-green-600">Sessão ativa</span>
@@ -1506,16 +1506,16 @@ ${orderItems}
         
         {/* Configurações da loja */}
         <div className="card mb-8">
-          <h3 className="text-xl font-semibold mb-4">Configurações da Loja</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h3 className="text-xl font-semibold mb-4">Configurações</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Status da Loja</label>
+              <label className="block text-sm font-medium mb-2">Status</label>
               <button
                 onClick={() => updateStoreSettings({
                   ...storeSettings,
                   isOpen: !storeSettings.isOpen
                 })}
-                className={`px-4 py-2 rounded-xl font-medium ${
+                className={`px-4 py-2 rounded-xl font-medium w-full ${
                   storeSettings.isOpen
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
@@ -1536,54 +1536,19 @@ ${orderItems}
                   ...storeSettings,
                   estimatedTime: e.target.value
                 })}
-                className="px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Ex: 30-45 min"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium mb-2">Ações do Sistema</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button
-                  onClick={resetMenu}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>Resetar Menu</span>
-                </button>
-                
-                <button
-                  onClick={restoreBackup}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                  </svg>
-                  <span>Restaurar Backup</span>
-                </button>
-                
-                <button
-                  onClick={exportData}
-                  className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span>Exportar Dados</span>
-                </button>
-                
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 flex items-center space-x-2"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span>Logout Seguro</span>
-                </button>
-              </div>
+              <label className="block text-sm font-medium mb-2">Ações</label>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
@@ -1632,26 +1597,33 @@ ${orderItems}
                     <button
                       onClick={async () => {
                         try {
-                          // Primeiro, remover promoção de todos os produtos
-                          const updatePromises = sushiMenu.map(p => 
-                            updateProduct(p.id, { promocaoDoDia: false })
-                          );
+                          const wasPromoted = product.promocaoDoDia;
                           
-                          // Aguardar todas as atualizações
-                          await Promise.all(updatePromises);
-                          
-                          // Se não era uma promoção ativa, definir este produto como promoção
-                          if (!product.promocaoDoDia) {
+                          if (wasPromoted) {
+                            // Se era promoção, apenas remover
+                            await updateProduct(product.id, { promocaoDoDia: false });
+                            
+                            setNotification({
+                              type: 'success',
+                              message: 'Promoção removida!',
+                              timestamp: Date.now()
+                            });
+                          } else {
+                            // Se não era promoção, primeiro remover de todos e depois ativar neste
+                            const updatePromises = sushiMenu.map(p => 
+                              updateProduct(p.id, { promocaoDoDia: false })
+                            );
+                            
+                            await Promise.all(updatePromises);
                             await updateProduct(product.id, { promocaoDoDia: true });
+                            
+                            setNotification({
+                              type: 'success',
+                              message: `${product.name} é agora a promoção do dia!`,
+                              timestamp: Date.now()
+                            });
                           }
                           
-                          setNotification({
-                            type: 'success',
-                            message: product.promocaoDoDia 
-                              ? 'Promoção removida!' 
-                              : `${product.name} é agora a promoção do dia!`,
-                            timestamp: Date.now()
-                          });
                           setTimeout(() => setNotification(null), 3000);
                         } catch (error) {
                           console.error('Erro ao atualizar promoção:', error);
@@ -2145,7 +2117,7 @@ ${orderItems}
           <div className="gradient-primary w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4 animate-pulse">
             🍣
           </div>
-          <h2 className="text-xl font-semibold text-gray-700">Carregando MV Sushi...</h2>
+          <h2 className="text-xl font-semibold text-gray-700">Carregando M.V. Sushi...</h2>
           <p className="text-gray-500 mt-1">
             {!isInitialized ? 'Verificando sessão' : 
              menuLoading ? 'Carregando menu' : 
