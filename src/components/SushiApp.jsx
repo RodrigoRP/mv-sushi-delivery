@@ -579,8 +579,6 @@ ${orderItems}
 📱 *Código PIX:* ${pixPayload}
 
 ⚠️ *Importante:* Enviar comprovante do PIX após o pagamento para confirmação do pedido.`;
-
-    const whatsappUrl = `https://wa.me/5555996005343?text=${encodeURIComponent(whatsappMessage)}`;
     
     // Salvar pedido com dados PIX
     const newOrder = {
