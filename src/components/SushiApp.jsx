@@ -364,10 +364,10 @@ const SushiApp = () => {
 
   // Funções PIX
   const generatePixPayload = (amount, orderId) => {
-    const pixKey = '55996005343'; // Telefone da empresa (DDD + número)
+    const pixKey = '+5555996005343'; // Telefone completo com código do país
     const merchantName = 'M.V. SUSHI';
     const merchantCity = 'SAO FRANCISCO DE ASSIS';
-    const txId = `MV-${orderId}`;
+    const txId = `MV${orderId}`.substring(0, 25); // Máximo 25 caracteres
     
     // Função auxiliar para calcular CRC16
     const crc16 = (data) => {
@@ -394,7 +394,7 @@ const SushiApp = () => {
     // Montar payload PIX
     let payload = '';
     payload += emv('00', '01'); // Payload Format Indicator
-    payload += emv('01', '12'); // Point of Initiation Method
+    payload += emv('01', '11'); // Point of Initiation Method (11 = PIX estático)
     
     // Merchant Account Information
     let merchantAccount = '';
@@ -418,6 +418,12 @@ const SushiApp = () => {
     // Calcular e adicionar CRC16
     const checksum = crc16(payload);
     payload = payload.slice(0, -4) + checksum;
+    
+    // Debug temporário
+    console.log('PIX Payload gerado:', payload);
+    console.log('Chave PIX:', pixKey);
+    console.log('Valor:', amount.toFixed(2));
+    console.log('TXID:', txId);
     
     return payload;
   };
