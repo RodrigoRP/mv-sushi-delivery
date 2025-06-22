@@ -7,8 +7,8 @@ export const useLocalStorageMenu = (initialMenu) => {
     return savedMenu ? JSON.parse(savedMenu) : initialMenu;
   });
   
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading] = useState(false);
+  const [error] = useState(null);
 
   // Salvar no localStorage sempre que mudar
   useEffect(() => {
@@ -58,7 +58,7 @@ export const useLocalStorageSettings = (initialSettings) => {
     return savedSettings ? JSON.parse(savedSettings) : initialSettings;
   });
   
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('mvSushiSettings', JSON.stringify(settings));
