@@ -420,7 +420,7 @@ const SushiApp = () => {
   };
 
   const getFinalPrice = (product) => {
-    return product.promocaoDoDia ? getDiscountedPrice(product) : product.price;
+    return getDiscountedPrice(product);
   };
 
   // Função de checkout
@@ -925,7 +925,7 @@ ${orderItems}
               <span className="text-sm font-medium">{product.rating}</span>
             </div>
             <div className="flex flex-col items-end">
-              {product.promocaoDoDia && product.desconto && product.desconto > 0 ? (
+              {product.desconto && product.desconto > 0 ? (
                 <>
                   <span className="text-sm text-gray-400 line-through">
                     R$ {product.price.toFixed(2)}
@@ -936,11 +936,11 @@ ${orderItems}
                 </>
               ) : (
                 <span className="text-2xl font-bold text-primary">
-                  R$ {product.price.toFixed(2)}
+                  R$ {getFinalPrice(product).toFixed(2)}
                 </span>
               )}
             </div>
-            {product.promocaoDoDia && product.desconto && product.desconto > 0 && (
+            {product.desconto && product.desconto > 0 && (
               <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                 -{product.desconto}%
               </span>
