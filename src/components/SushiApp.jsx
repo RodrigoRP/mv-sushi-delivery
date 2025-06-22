@@ -1763,7 +1763,9 @@ ${orderItems}
           available: editingProduct.available,
           popular: editingProduct.popular,
           category: editingProduct.category,
-          rating: editingProduct.rating
+          rating: editingProduct.rating,
+          desconto: editingProduct.desconto || null,
+          promocaoDoDia: editingProduct.promocaoDoDia || false
         });
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
