@@ -40,7 +40,8 @@ const SushiApp = () => {
       category: 'Combos',
       rating: 4.8,
       available: true,
-      popular: true
+      popular: true,
+      promocaoDoDia: true
     },
     {
       id: 2,
@@ -753,6 +754,113 @@ ${orderItems}
     </section>
   );
 
+  // Componente Promoção do Dia
+  const PromocaoDoDia = () => {
+    const promocaoProduct = (sushiMenu || []).find(product => product.promocaoDoDia);
+    
+    if (!promocaoProduct) return null;
+
+    return (
+      <section className="max-w-7xl mx-auto px-4 py-8">
+        <div className="relative overflow-hidden bg-gradient-to-r from-red-500 via-red-600 to-red-700 rounded-3xl p-8 text-white shadow-2xl">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-full h-full bg-repeat" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+            }} />
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="flex items-center space-x-3 mb-2">
+                  <span className="text-3xl">🔥</span>
+                  <h2 className="text-2xl md:text-3xl font-bold">PROMOÇÃO DO DIA</h2>
+                  <span className="bg-yellow-400 text-red-800 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                    OFERTA ESPECIAL
+                  </span>
+                </div>
+                <p className="text-red-100 text-lg">Aproveite agora por tempo limitado!</p>
+              </div>
+              <div className="hidden md:block text-right">
+                <div className="text-xs text-red-200 mb-1">ECONOMIZE HOJE</div>
+                <div className="text-2xl font-bold text-yellow-300">ATÉ 20% OFF</div>
+              </div>
+            </div>
+            
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              <div className="grid md:grid-cols-2 gap-6 items-center">
+                <div className="relative">
+                  <img
+                    src={promocaoProduct.image}
+                    alt={promocaoProduct.name}
+                    className="w-full h-48 md:h-56 object-cover rounded-xl shadow-lg"
+                  />
+                  <div className="absolute top-3 right-3 bg-yellow-400 text-red-800 px-3 py-1 rounded-full text-sm font-bold animate-bounce">
+                    DESTAQUE
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-3">{promocaoProduct.name}</h3>
+                  <p className="text-white/90 mb-4 text-lg leading-relaxed">{promocaoProduct.description}</p>
+                  
+                  <div className="flex items-center space-x-4 mb-6">
+                    <div className="text-3xl font-bold text-yellow-300">
+                      R$ {promocaoProduct.price.toFixed(2)}
+                    </div>
+                    {promocaoProduct.rating && (
+                      <div className="flex items-center space-x-1 bg-white/20 px-3 py-1 rounded-full">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-semibold">{promocaoProduct.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => {
+                        addToCart(promocaoProduct);
+                        setNotification({
+                          type: 'success',
+                          message: `${promocaoProduct.name} adicionado ao carrinho!`,
+                          timestamp: Date.now()
+                        });
+                        setTimeout(() => setNotification(null), 3000);
+                      }}
+                      disabled={!promocaoProduct.available}
+                      className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 rounded-full font-bold text-lg transition-all duration-200 ${
+                        promocaoProduct.available
+                          ? 'bg-yellow-400 hover:bg-yellow-300 text-red-800 shadow-lg hover:shadow-xl transform hover:-translate-y-1'
+                          : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      }`}
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      <span>{promocaoProduct.available ? 'APROVEITAR AGORA' : 'Indisponível'}</span>
+                    </button>
+                    
+                    <button
+                      onClick={() => setIsCartOpen(true)}
+                      className="px-6 py-4 bg-white/20 hover:bg-white/30 text-white rounded-full font-semibold transition-all duration-200 border border-white/30"
+                    >
+                      Ver Carrinho
+                    </button>
+                  </div>
+                  
+                  <div className="mt-4 text-center">
+                    <p className="text-sm text-red-100">
+                      ⚡ Oferta válida enquanto durarem os ingredientes
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  };
+
   // Componente Search & Filter
   const SearchAndFilter = () => (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -800,7 +908,13 @@ ${orderItems}
           alt={product.name}
           className="w-full h-48 object-cover rounded-xl"
         />
-        {product.popular && (
+        {product.promocaoDoDia && (
+          <span className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center space-x-1 animate-pulse">
+            <span>🔥</span>
+            <span>PROMOÇÃO</span>
+          </span>
+        )}
+        {product.popular && !product.promocaoDoDia && (
           <span className="absolute top-3 left-3 badge-popular flex items-center space-x-1">
             <Star className="w-3 h-3 fill-current" />
             <span>Popular</span>
@@ -1463,6 +1577,111 @@ ${orderItems}
           </div>
         </div>
         
+        {/* Gerenciar Promoção do Dia */}
+        <div className="card mb-8">
+          <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+            <span className="text-2xl">🔥</span>
+            <span>Promoção do Dia</span>
+          </h3>
+          <div className="space-y-4">
+            <p className="text-custom-gray-500">Selecione qual produto será a promoção especial do dia</p>
+            
+            <div className="grid gap-4">
+              {sushiMenu.map(product => (
+                <div 
+                  key={product.id} 
+                  className={`p-4 border-2 rounded-xl transition-all duration-200 ${
+                    product.promocaoDoDia 
+                      ? 'border-red-500 bg-red-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                      <div>
+                        <h4 className="font-semibold">{product.name}</h4>
+                        <p className="text-custom-gray-500 text-sm">{product.category}</p>
+                        <p className="font-bold text-primary">R$ {product.price.toFixed(2)}</p>
+                      </div>
+                      {product.promocaoDoDia && (
+                        <div className="flex items-center space-x-2">
+                          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                            PROMOÇÃO ATIVA
+                          </span>
+                          <span className="text-2xl">🔥</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <button
+                      onClick={async () => {
+                        try {
+                          // Primeiro, remover promoção de todos os produtos
+                          const updatePromises = sushiMenu.map(p => 
+                            updateProduct(p.id, { promocaoDoDia: false })
+                          );
+                          
+                          // Aguardar todas as atualizações
+                          await Promise.all(updatePromises);
+                          
+                          // Se não era uma promoção ativa, definir este produto como promoção
+                          if (!product.promocaoDoDia) {
+                            await updateProduct(product.id, { promocaoDoDia: true });
+                          }
+                          
+                          setNotification({
+                            type: 'success',
+                            message: product.promocaoDoDia 
+                              ? 'Promoção removida!' 
+                              : `${product.name} é agora a promoção do dia!`,
+                            timestamp: Date.now()
+                          });
+                          setTimeout(() => setNotification(null), 3000);
+                        } catch (error) {
+                          console.error('Erro ao atualizar promoção:', error);
+                          setNotification({
+                            type: 'error',
+                            message: 'Erro ao atualizar promoção. Tente novamente.',
+                            timestamp: Date.now()
+                          });
+                          setTimeout(() => setNotification(null), 3000);
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-full font-medium transition-all duration-200 ${
+                        product.promocaoDoDia
+                          ? 'bg-red-500 hover:bg-red-600 text-white'
+                          : 'bg-gray-100 hover:bg-red-100 text-gray-700 hover:text-red-700'
+                      }`}
+                    >
+                      {product.promocaoDoDia ? 'Remover Promoção' : 'Definir como Promoção'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <div className="flex items-start space-x-3">
+                <span className="text-yellow-600 text-xl">💡</span>
+                <div>
+                  <h4 className="font-semibold text-yellow-800 mb-1">Como funciona?</h4>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    <li>• Apenas 1 produto pode ser promoção do dia por vez</li>
+                    <li>• A promoção aparece em destaque na página principal</li>
+                    <li>• Clientes verão um banner especial com call-to-action</li>
+                    <li>• Para remover a promoção, clique em "Remover Promoção"</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         {/* Lista de produtos para admin */}
         <div className="card">
           <h3 className="text-xl font-semibold mb-4">Gerenciar Produtos</h3>
@@ -1483,6 +1702,13 @@ ${orderItems}
                 </div>
                 
                 <div className="flex items-center space-x-2">
+                  {product.promocaoDoDia && (
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500 text-white flex items-center space-x-1">
+                      <span>🔥</span>
+                      <span>PROMOÇÃO</span>
+                    </span>
+                  )}
+                  
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     product.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
@@ -1943,6 +2169,7 @@ ${orderItems}
     <div className="min-h-screen bg-custom-gray-50">
       <Header />
       <HeroSection />
+      <PromocaoDoDia />
       <SearchAndFilter />
       <ProductGrid />
       <Footer />
