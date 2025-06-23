@@ -29,7 +29,10 @@ import {
   LogOut,
   Copy,
   Check,
-  RotateCcw
+  RotateCcw,
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 const SushiApp = () => {
@@ -278,6 +281,43 @@ const SushiApp = () => {
   const [notification, setNotification] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [addingToCart, setAddingToCart] = useState(null); // Para animação do botão
+  
+  // Estados para eventos
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEventDate, setSelectedEventDate] = useState(null);
+  const [availableEventDates, setAvailableEventDates] = useState([]);
+  const [eventRequests, setEventRequests] = useState([]);
+  
+  // Tipos de eventos disponíveis
+  const eventTypes = [
+    { id: 'festa', name: 'Festa', icon: '🎉' },
+    { id: 'casamento', name: 'Casamento', icon: '💒' },
+    { id: 'aniversario', name: 'Aniversário', icon: '🎂' },
+    { id: 'reuniao', name: 'Reunião/Corporativo', icon: '🏢' },
+    { id: 'outros', name: 'Outros', icon: '🍣' }
+  ];
+  
+  // Inicializar datas disponíveis para eventos (próximos 60 dias, exceto domingos)
+  useEffect(() => {
+    const generateAvailableDates = () => {
+      const dates = [];
+      const today = new Date();
+      
+      for (let i = 7; i <= 60; i++) { // Começar a partir de 7 dias (prazo mínimo)
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        
+        // Excluir domingos (dia 0)
+        if (date.getDay() !== 0) {
+          dates.push(date.toISOString().split('T')[0]);
+        }
+      }
+      
+      setAvailableEventDates(dates);
+    };
+    
+    generateAvailableDates();
+  }, []);
   
   // Hook para verificar atualizações
   const { hasUpdate, applyUpdate, dismissUpdate } = useVersionCheck();
@@ -761,6 +801,14 @@ const SushiApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
+                </button>
+                <button
+                  onClick={() => setShowEventModal(true)}
+                  className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
+                  title="Eventos"
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span className="hidden sm:inline text-sm">Eventos</span>
                 </button>
                 <button
                   onClick={() => setIsCartOpen(true)}
@@ -1669,7 +1717,7 @@ ${orderItems}
         </div>
         
         {/* Cards de estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <div className="card">
             <div className="flex items-center space-x-4">
               <div className="bg-blue-100 p-3 rounded-xl">
@@ -1720,6 +1768,127 @@ ${orderItems}
                   {storeSettings.isOpen ? 'Aberto' : 'Fechado'}
                 </p>
                 <p className="text-custom-gray-500">Status da Loja</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="card">
+            <div className="flex items-center space-x-4">
+              <div className="bg-orange-100 p-3 rounded-xl">
+                <Calendar className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{eventRequests.length}</p>
+                <p className="text-custom-gray-500">Eventos Solicitados</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Gestão de Eventos */}
+        <div className="card mb-8">
+          <h3 className="text-xl font-semibold mb-6 flex items-center space-x-2">
+            <Calendar className="w-5 h-5 text-orange-500" />
+            <span>Gestão de Eventos</span>
+          </h3>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Solicitações de Eventos */}
+            <div>
+              <h4 className="font-medium mb-4">Solicitações Recebidas ({eventRequests.length})</h4>
+              {eventRequests.length === 0 ? (
+                <div className="text-center py-8 bg-gray-50 rounded-lg">
+                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">Nenhuma solicitação de evento ainda</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {eventRequests.map(request => (
+                    <div key={request.id} className="p-4 border border-gray-200 rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h5 className="font-medium">{request.name}</h5>
+                          <p className="text-sm text-gray-600">{request.contact}</p>
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                        }`}>
+                          {request.status === 'pending' ? 'Pendente' : 'Confirmado'}
+                        </span>
+                      </div>
+                      
+                      <div className="text-sm space-y-1">
+                        <p><strong>Data:</strong> {new Date(request.date).toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Tipo:</strong> {eventTypes.find(t => t.id === request.type)?.name}</p>
+                        <p><strong>Convidados:</strong> {request.guests}</p>
+                        <p><strong>Local:</strong> {request.location}</p>
+                        {request.budget && <p><strong>Orçamento:</strong> {request.budget}</p>}
+                      </div>
+                      
+                      <div className="flex space-x-2 mt-3">
+                        <a
+                          href={`https://wa.me/55${request.contact.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Recebemos sua solicitação de evento e entramos em contato para mais detalhes.')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-3 rounded-lg text-sm transition-colors"
+                        >
+                          Responder WhatsApp
+                        </a>
+                        <button
+                          onClick={() => {
+                            setEventRequests(eventRequests.filter(r => r.id !== request.id));
+                            setNotification({
+                              type: 'success',
+                              message: 'Solicitação removida',
+                              timestamp: Date.now()
+                            });
+                            setTimeout(() => setNotification(null), 2000);
+                          }}
+                          className="bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg text-sm transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Gestão de Datas Disponíveis */}
+            <div>
+              <h4 className="font-medium mb-4">Datas Disponíveis para Eventos</h4>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 mb-3">
+                  Atualmente gerando automaticamente datas disponíveis (exceto domingos).
+                </p>
+                <div className="text-sm">
+                  <p><strong>Próximas datas:</strong></p>
+                  <div className="mt-2 space-y-1">
+                    {availableEventDates.slice(0, 5).map(date => (
+                      <div key={date} className="flex justify-between items-center">
+                        <span>{new Date(date).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })}</span>
+                        <button
+                          onClick={() => {
+                            setAvailableEventDates(availableEventDates.filter(d => d !== date));
+                            setNotification({
+                              type: 'success',
+                              message: 'Data removida da disponibilidade',
+                              timestamp: Date.now()
+                            });
+                            setTimeout(() => setNotification(null), 2000);
+                          }}
+                          className="text-red-500 hover:text-red-700 text-xs"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Total: {availableEventDates.length} datas disponíveis
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -2299,6 +2468,348 @@ ${orderItems}
     );
   }
 
+  // Componente Event Modal
+  const EventModal = () => {
+    const [currentStep, setCurrentStep] = useState('calendar'); // 'calendar' ou 'form'
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [eventForm, setEventForm] = useState({
+      type: '',
+      guests: '',
+      location: '',
+      preferences: '',
+      budget: '',
+      observations: '',
+      contact: '',
+      name: ''
+    });
+
+    const formatDate = (date) => {
+      return new Date(date).toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    };
+
+    const getDaysInMonth = (date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const days = [];
+
+      // Adicionar dias vazios do início
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        days.push(null);
+      }
+
+      // Adicionar dias do mês
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayDate = new Date(year, month, day);
+        const dateStr = dayDate.toISOString().split('T')[0];
+        days.push({
+          day,
+          date: dateStr,
+          available: availableEventDates.includes(dateStr)
+        });
+      }
+
+      return days;
+    };
+
+    const nextMonth = () => {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+    };
+
+    const prevMonth = () => {
+      setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+    };
+
+    const selectDate = (date) => {
+      setSelectedEventDate(date);
+      setCurrentStep('form');
+    };
+
+    const submitEventRequest = () => {
+      const eventRequest = {
+        id: Date.now(),
+        date: selectedEventDate,
+        ...eventForm,
+        timestamp: new Date().toISOString(),
+        status: 'pending'
+      };
+
+      setEventRequests([...eventRequests, eventRequest]);
+
+      // Criar mensagem para WhatsApp
+      const whatsappMessage = `🎉 *SOLICITAÇÃO DE EVENTO - M.V. SUSHI*
+
+📅 *Data:* ${formatDate(selectedEventDate)}
+🎪 *Tipo:* ${eventTypes.find(t => t.id === eventForm.type)?.name || eventForm.type}
+👥 *Convidados:* ${eventForm.guests}
+📍 *Local:* ${eventForm.location}
+💰 *Orçamento:* ${eventForm.budget}
+
+🍣 *Preferências:* ${eventForm.preferences}
+📝 *Observações:* ${eventForm.observations}
+
+👤 *Contato:* ${eventForm.name}
+📱 *Telefone:* ${eventForm.contact}
+
+_Aguardamos seu retorno para confirmar disponibilidade!_`;
+
+      const whatsappUrl = `https://wa.me/5555996005343?text=${encodeURIComponent(whatsappMessage)}`;
+      window.open(whatsappUrl, '_blank');
+
+      setNotification({
+        type: 'success',
+        message: 'Solicitação enviada! Você será redirecionado para o WhatsApp.',
+        timestamp: Date.now()
+      });
+      setTimeout(() => setNotification(null), 3000);
+
+      // Reset form
+      setShowEventModal(false);
+      setCurrentStep('calendar');
+      setSelectedEventDate(null);
+      setEventForm({
+        type: '',
+        guests: '',
+        location: '',
+        preferences: '',
+        budget: '',
+        observations: '',
+        contact: '',
+        name: ''
+      });
+    };
+
+    if (!showEventModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Calendar className="w-6 h-6 text-orange-500" />
+                <h2 className="text-xl font-bold">
+                  {currentStep === 'calendar' ? 'Escolha a Data' : 'Detalhes do Evento'}
+                </h2>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEventModal(false);
+                  setCurrentStep('calendar');
+                  setSelectedEventDate(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {currentStep === 'calendar' ? (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <button
+                    onClick={prevMonth}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <h3 className="text-lg font-semibold">
+                    {currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                  </h3>
+                  <button
+                    onClick={nextMonth}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 mb-4">
+                  {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
+                    <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1">
+                  {getDaysInMonth(currentMonth).map((dayData, index) => (
+                    <div key={index} className="aspect-square">
+                      {dayData ? (
+                        <button
+                          onClick={() => dayData.available && selectDate(dayData.date)}
+                          disabled={!dayData.available}
+                          className={`w-full h-full rounded-lg transition-all duration-200 text-sm font-medium ${
+                            dayData.available
+                              ? 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer'
+                              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          }`}
+                        >
+                          {dayData.day}
+                        </button>
+                      ) : (
+                        <div></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 text-center">
+                  <div className="flex items-center justify-center space-x-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-green-100 rounded"></div>
+                      <span>Disponível</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 bg-gray-100 rounded"></div>
+                      <span>Indisponível</span>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-xs mt-2">
+                    Selecione uma data disponível para continuar
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <p className="text-orange-800 font-medium">
+                    📅 Data selecionada: {formatDate(selectedEventDate)}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Nome *</label>
+                    <input
+                      type="text"
+                      value={eventForm.name}
+                      onChange={(e) => setEventForm({...eventForm, name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Seu nome completo"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Telefone *</label>
+                    <input
+                      type="tel"
+                      value={eventForm.contact}
+                      onChange={(e) => setEventForm({...eventForm, contact: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="(55) 99999-9999"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Tipo de Evento *</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {eventTypes.map(type => (
+                      <button
+                        key={type.id}
+                        onClick={() => setEventForm({...eventForm, type: type.id})}
+                        className={`p-3 border rounded-lg transition-colors text-center ${
+                          eventForm.type === type.id
+                            ? 'border-orange-500 bg-orange-50 text-orange-700'
+                            : 'border-gray-200 hover:border-orange-300'
+                        }`}
+                      >
+                        <div className="text-2xl mb-1">{type.icon}</div>
+                        <div className="text-sm font-medium">{type.name}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Número de Convidados *</label>
+                    <input
+                      type="number"
+                      value={eventForm.guests}
+                      onChange={(e) => setEventForm({...eventForm, guests: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Ex: 50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Orçamento Estimado</label>
+                    <input
+                      type="text"
+                      value={eventForm.budget}
+                      onChange={(e) => setEventForm({...eventForm, budget: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      placeholder="Ex: R$ 2000"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Local do Evento *</label>
+                  <input
+                    type="text"
+                    value={eventForm.location}
+                    onChange={(e) => setEventForm({...eventForm, location: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Ex: Casa, Salão, Clube, etc."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Preferências de Pratos</label>
+                  <textarea
+                    value={eventForm.preferences}
+                    onChange={(e) => setEventForm({...eventForm, preferences: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Ex: Combos variados, sashimis, temakis..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Observações</label>
+                  <textarea
+                    value={eventForm.observations}
+                    onChange={(e) => setEventForm({...eventForm, observations: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    rows={3}
+                    placeholder="Informações adicionais, restrições alimentares, etc."
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setCurrentStep('calendar')}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    onClick={submitEventRequest}
+                    disabled={!eventForm.name || !eventForm.contact || !eventForm.type || !eventForm.guests || !eventForm.location}
+                    className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    Enviar Solicitação
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // Componente de Notificação de Atualização
   const UpdateNotification = () => (
     hasUpdate && (
@@ -2337,6 +2848,7 @@ ${orderItems}
         <Header />
         <AdminDashboard />
         <ProductEditModal />
+        <EventModal />
         <Notification />
         <UpdateNotification />
       </div>
@@ -2355,6 +2867,7 @@ ${orderItems}
       <CheckoutModal />
       <PixPaymentModal />
       <AdminLoginModal />
+      <EventModal />
       <Notification />
       <UpdateNotification />
       
