@@ -277,6 +277,7 @@ const SushiApp = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [notification, setNotification] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(null); // Para animação do botão
   
   // Hook para verificar atualizações
   const { hasUpdate, applyUpdate, dismissUpdate } = useVersionCheck();
@@ -500,6 +501,17 @@ const SushiApp = () => {
     if (product.estoque !== undefined) {
       updateProduct(product.id, { estoque: product.estoque - 1 });
     }
+
+    // Feedback visual e notificação
+    setAddingToCart(product.id);
+    setTimeout(() => setAddingToCart(null), 500);
+    
+    setNotification({
+      type: 'success',
+      message: `${product.name} adicionado ao carrinho!`,
+      timestamp: Date.now()
+    });
+    setTimeout(() => setNotification(null), 2000);
   };
 
   const removeFromCart = (productId) => {
@@ -752,11 +764,15 @@ const SushiApp = () => {
                 </button>
                 <button
                   onClick={() => setIsCartOpen(true)}
-                  className="relative btn-primary"
+                  className={`relative btn-primary transition-all duration-300 ${
+                    addingToCart ? 'animate-cart-shake' : ''
+                  }`}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {getTotalItems() > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                    <span className={`absolute -top-2 -right-2 bg-secondary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold transition-all duration-300 ${
+                      addingToCart ? 'scale-125 bg-green-500' : ''
+                    }`}>
                       {getTotalItems()}
                     </span>
                   )}
@@ -1023,14 +1039,18 @@ const SushiApp = () => {
             <button
               onClick={() => addToCart(product)}
               disabled={product.estoque !== undefined && product.estoque <= 0}
-              className={`p-2 rounded-lg transition-all duration-200 ml-2 ${
+              className={`p-2 rounded-lg transition-all duration-200 ml-2 transform ${
                 product.estoque !== undefined && product.estoque <= 0
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md'
+                  : addingToCart === product.id
+                  ? 'bg-green-600 text-white shadow-lg scale-110'
+                  : 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md hover:scale-105'
               }`}
             >
               {product.estoque !== undefined && product.estoque <= 0 ? (
                 <X className="w-4 h-4" />
+              ) : addingToCart === product.id ? (
+                <Check className="w-4 h-4" />
               ) : (
                 <Plus className="w-4 h-4" />
               )}
