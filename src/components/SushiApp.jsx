@@ -816,7 +816,7 @@ const SushiApp = () => {
                   title="Eventos"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-2">🎉 NOVA UI</span>
+                  <span className="hidden sm:inline ml-2">Eventos</span>
                 </Button>
                 <Button
                   onClick={() => setIsCartOpen(true)}
