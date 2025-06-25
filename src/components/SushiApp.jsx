@@ -4,10 +4,10 @@ import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOpt
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { 
   ShoppingCart, 
