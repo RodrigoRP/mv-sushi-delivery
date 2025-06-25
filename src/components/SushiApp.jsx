@@ -42,7 +42,7 @@ import {
 } from 'lucide-react';
 
 const SushiApp = () => {
-  // Menu inicial (padrão)
+  // Menu inicial (padrão) - MODERNIZED WITH SHADCN/UI v1.0.3
   const initialMenu = [
     // Combos
     {
