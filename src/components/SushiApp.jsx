@@ -832,7 +832,7 @@ const SushiApp = () => {
                       {getTotalItems()}
                     </span>
                   )}
-                </button>
+                </Button>
               </div>
             )}
             
