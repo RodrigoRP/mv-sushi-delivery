@@ -2515,19 +2515,18 @@ ${orderItems}
       setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
     };
 
-    const selectDate = (date) => {
+    const selectDate = React.useCallback((date) => {
       console.log('Selecting date:', date);
       console.log('Current step before:', currentStep);
       
-      // Force update in the correct order
-      setSelectedEventDate(date);
-      
-      // Use setTimeout to ensure state update happens
-      setTimeout(() => {
+      // Update both states in a single batch
+      React.startTransition(() => {
+        setSelectedEventDate(date);
         setCurrentStep('form');
-        console.log('Moved to form step');
-      }, 10);
-    };
+      });
+      
+      console.log('Should move to form step immediately');
+    }, [currentStep]);
 
     const submitEventRequest = () => {
       const eventRequest = {
@@ -2643,7 +2642,13 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
                     <div key={index} className="h-8 md:h-10">
                       {dayData ? (
                         <button
-                          onClick={() => dayData.available && selectDate(dayData.date)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (dayData.available) {
+                              selectDate(dayData.date);
+                            }
+                          }}
                           disabled={!dayData.available}
                           className={`w-full h-full rounded-lg transition-all duration-200 text-sm font-medium ${
                             dayData.available
