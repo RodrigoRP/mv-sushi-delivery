@@ -2499,7 +2499,6 @@ ${orderItems}
 
       // Adicionar dias do mês
       for (let day = 1; day <= lastDay.getDate(); day++) {
-        const dayDate = new Date(year, month, day);
         // Fix timezone issue by using local date formatting
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         days.push({
