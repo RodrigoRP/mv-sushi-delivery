@@ -3,13 +3,12 @@ import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOpt
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import { QRCodeSVG } from 'qrcode.react';
-// Temporarily commented for debugging
-// import { Button } from './ui/button';
-// import { Card, CardContent } from './ui/card';
-// import { Badge } from './ui/badge';
-// import { Input } from './ui/input';
-// import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-// import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { 
   ShoppingCart, 
   Search, 
@@ -43,7 +42,7 @@ import {
 } from 'lucide-react';
 
 const SushiApp = () => {
-  // Menu inicial (padrão) - MODERNIZED WITH SHADCN/UI v1.0.3
+  // Menu inicial (padrão)
   const initialMenu = [
     // Combos
     {
@@ -809,17 +808,19 @@ const SushiApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </button>
-                <button
+                <Button
                   onClick={() => setShowEventModal(true)}
-                  className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
+                  variant="warning"
+                  size="sm"
+                  className="shadow-sm hover:shadow-md"
                   title="Eventos"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span className="hidden sm:inline text-sm">MODERNIZED UI v1.0.3</span>
-                </button>
-                <button
+                  <span className="hidden sm:inline ml-2">🎉 NOVA UI</span>
+                </Button>
+                <Button
                   onClick={() => setIsCartOpen(true)}
-                  className={`relative btn-primary transition-all duration-300 ${
+                  className={`relative transition-all duration-300 ${
                     addingToCart ? 'animate-cart-shake' : ''
                   }`}
                 >
@@ -831,7 +832,7 @@ const SushiApp = () => {
                       {getTotalItems()}
                     </span>
                   )}
-                </button>
+                </Button>
               </div>
             )}
             
@@ -959,15 +960,15 @@ const SushiApp = () => {
       <div className="mb-6">
         <div className="relative max-w-md mx-auto">
           <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
             id="search-products"
             name="search"
             type="text"
             placeholder="Buscar produtos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm shadow-sm"
+            className="pl-10 rounded-full shadow-sm"
           />
         </div>
       </div>
@@ -975,18 +976,16 @@ const SushiApp = () => {
       <div className="flex space-x-2 overflow-x-scroll pb-2 px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}>
         <div className="flex space-x-2 min-w-max">
         {categories.map(category => (
-          <button
+          <Button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
-              selectedCategory === category
-                ? 'bg-green-500 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            variant={selectedCategory === category ? "success" : "outline"}
+            size="sm"
+            className="whitespace-nowrap rounded-full"
           >
             {category === 'Populares' && '⭐ '}
             {category}
-          </button>
+          </Button>
         ))}
         </div>
       </div>
