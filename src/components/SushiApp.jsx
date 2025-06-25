@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { useVersionCheck } from '../hooks/useVersionCheck';
@@ -2461,6 +2461,7 @@ ${orderItems}
   const EventModal = () => {
     const [currentStep, setCurrentStep] = useState('calendar'); // 'calendar' ou 'form'
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const isProcessingRef = useRef(false);
     const [eventForm, setEventForm] = useState({
       type: '',
       guests: '',
@@ -2522,18 +2523,30 @@ ${orderItems}
     const selectDate = (date) => {
       console.log('Selecting date:', date);
       console.log('Current step before:', currentStep);
+      console.log('Is processing:', isProcessingRef.current);
       
-      // Prevent multiple calls by checking if already selected
-      if (selectedEventDate === date && currentStep === 'form') {
-        console.log('Date already selected, ignoring');
+      // Prevent multiple rapid clicks
+      if (isProcessingRef.current) {
+        console.log('Already processing, ignoring click');
         return;
       }
       
-      // Update states immediately without batching
+      // Set processing flag
+      isProcessingRef.current = true;
+      
+      console.log('Processing date selection...');
+      
+      // Update states
       setSelectedEventDate(date);
       setCurrentStep('form');
       
-      console.log('Moved to form step');
+      // Reset processing flag after a short delay
+      setTimeout(() => {
+        isProcessingRef.current = false;
+        console.log('Processing flag reset');
+      }, 100);
+      
+      console.log('Date selection completed');
     };
 
     const submitEventRequest = () => {
@@ -2578,6 +2591,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
       setShowEventModal(false);
       setCurrentStep('calendar');
       setSelectedEventDate(null);
+      isProcessingRef.current = false;
       setEventForm({
         type: '',
         guests: '',
@@ -2608,6 +2622,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
                   setShowEventModal(false);
                   setCurrentStep('calendar');
                   setSelectedEventDate(null);
+                  isProcessingRef.current = false;
                 }}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
