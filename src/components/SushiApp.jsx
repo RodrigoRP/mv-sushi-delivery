@@ -959,15 +959,15 @@ const SushiApp = () => {
       <div className="mb-6">
         <div className="relative max-w-md mx-auto">
           <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <input
             id="search-products"
             name="search"
             type="text"
             placeholder="Buscar produtos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 rounded-full shadow-sm"
+            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm shadow-sm"
           />
         </div>
       </div>
@@ -975,16 +975,18 @@ const SushiApp = () => {
       <div className="flex space-x-2 overflow-x-scroll pb-2 px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}>
         <div className="flex space-x-2 min-w-max">
         {categories.map(category => (
-          <Button
+          <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            variant={selectedCategory === category ? "success" : "outline"}
-            size="sm"
-            className="whitespace-nowrap rounded-full"
+            className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
+              selectedCategory === category
+                ? 'bg-green-500 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
             {category === 'Populares' && '⭐ '}
             {category}
-          </Button>
+          </button>
         ))}
         </div>
       </div>
