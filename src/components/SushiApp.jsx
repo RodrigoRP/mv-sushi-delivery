@@ -2516,8 +2516,17 @@ ${orderItems}
     };
 
     const selectDate = (date) => {
+      console.log('Selecting date:', date);
+      console.log('Current step before:', currentStep);
+      
+      // Force update in the correct order
       setSelectedEventDate(date);
-      setCurrentStep('form');
+      
+      // Use setTimeout to ensure state update happens
+      setTimeout(() => {
+        setCurrentStep('form');
+        console.log('Moved to form step');
+      }, 10);
     };
 
     const submitEventRequest = () => {
@@ -2578,7 +2587,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
 
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-2xl max-w-lg md:max-w-xl w-full max-h-[90vh] overflow-y-auto">
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -2631,7 +2640,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
 
                 <div className="grid grid-cols-7 gap-1">
                   {getDaysInMonth(currentMonth).map((dayData, index) => (
-                    <div key={index} className="aspect-square">
+                    <div key={index} className="h-8 md:h-10">
                       {dayData ? (
                         <button
                           onClick={() => dayData.available && selectDate(dayData.date)}
