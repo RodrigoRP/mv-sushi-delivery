@@ -3,6 +3,12 @@ import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOpt
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import { QRCodeSVG } from 'qrcode.react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { 
   ShoppingCart, 
   Search, 
@@ -802,17 +808,19 @@ const SushiApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </button>
-                <button
+                <Button
                   onClick={() => setShowEventModal(true)}
-                  className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
+                  variant="warning"
+                  size="sm"
+                  className="shadow-sm hover:shadow-md"
                   title="Eventos"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span className="hidden sm:inline text-sm">Eventos</span>
-                </button>
-                <button
+                  <span className="hidden sm:inline ml-2">Eventos</span>
+                </Button>
+                <Button
                   onClick={() => setIsCartOpen(true)}
-                  className={`relative btn-primary transition-all duration-300 ${
+                  className={`relative transition-all duration-300 ${
                     addingToCart ? 'animate-cart-shake' : ''
                   }`}
                 >
@@ -952,15 +960,15 @@ const SushiApp = () => {
       <div className="mb-6">
         <div className="relative max-w-md mx-auto">
           <label htmlFor="search-products" className="sr-only">Buscar produtos</label>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
             id="search-products"
             name="search"
             type="text"
             placeholder="Buscar produtos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm shadow-sm"
+            className="pl-10 rounded-full shadow-sm"
           />
         </div>
       </div>
@@ -968,18 +976,16 @@ const SushiApp = () => {
       <div className="flex space-x-2 overflow-x-scroll pb-2 px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'}}>
         <div className="flex space-x-2 min-w-max">
         {categories.map(category => (
-          <button
+          <Button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-3 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition-all duration-200 ${
-              selectedCategory === category
-                ? 'bg-green-500 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            variant={selectedCategory === category ? "success" : "outline"}
+            size="sm"
+            className="whitespace-nowrap rounded-full"
           >
             {category === 'Populares' && '⭐ '}
             {category}
-          </button>
+          </Button>
         ))}
         </div>
       </div>
@@ -1007,50 +1013,46 @@ const SushiApp = () => {
 
   // Componente Product Card
   const ProductCard = ({ product }) => (
-    <div className={`bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 group ${!product.available ? 'opacity-50' : ''}`}>
-      <div className="relative mb-3">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-32 object-cover rounded-lg"
-        />
-        {product.promocaoDoDia && (
-          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
-            <span>🔥</span>
-            <span>PROMO</span>
-          </span>
-        )}
-        {product.popular && !product.promocaoDoDia && (
-          <span className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
-            <Star className="w-3 h-3 fill-current" />
-            <span>Top</span>
-          </span>
-        )}
-        {!product.available && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">Indisponível</span>
-          </div>
-        )}
-      </div>
-      
-      <div className="space-y-2">
+    <Card className={`hover:shadow-lg transition-all duration-200 group ${!product.available ? 'opacity-50' : ''}`}>
+      <CardContent className="p-4">
+        <div className="relative mb-3">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-32 object-cover rounded-lg"
+          />
+          {product.promocaoDoDia && (
+            <Badge variant="destructive" className="absolute top-2 left-2 text-xs">
+              🔥 PROMO
+            </Badge>
+          )}
+          {product.popular && !product.promocaoDoDia && (
+            <Badge variant="warning" className="absolute top-2 left-2 text-xs">
+              <Star className="w-3 h-3 fill-current mr-1" />
+              Top
+            </Badge>
+          )}
+          {!product.available && (
+            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">Indisponível</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="space-y-2">
         <div>
           <h3 className="font-semibold text-base">{product.name}</h3>
           <p className="text-gray-500 text-xs mt-1 line-clamp-2">{product.description}</p>
           {product.estoque !== undefined && (
             <div className="mt-2">
               {product.estoque > 0 ? (
-                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                  product.estoque <= 3 
-                    ? 'bg-orange-100 text-orange-600' 
-                    : 'bg-green-100 text-green-600'
-                }`}>
+                <Badge variant={product.estoque <= 3 ? "warning" : "success"} className="text-xs">
                   {product.estoque <= 3 ? '⚠️' : '✅'} {product.estoque} disponíveis
-                </span>
+                </Badge>
               ) : (
-                <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                <Badge variant="destructive" className="text-xs">
                   ❌ Sem estoque
-                </span>
+                </Badge>
               )}
             </div>
           )}
@@ -1084,15 +1086,13 @@ const SushiApp = () => {
           </div>
           
           {product.available && !isAdmin && (
-            <button
+            <Button
               onClick={() => addToCart(product)}
               disabled={product.estoque !== undefined && product.estoque <= 0}
-              className={`p-2 rounded-lg transition-all duration-200 ml-2 transform ${
-                product.estoque !== undefined && product.estoque <= 0
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : addingToCart === product.id
-                  ? 'bg-green-600 text-white shadow-lg scale-110'
-                  : 'bg-green-500 hover:bg-green-600 text-white shadow-sm hover:shadow-md hover:scale-105'
+              variant={addingToCart === product.id ? "success" : "success"}
+              size="icon"
+              className={`ml-2 transition-all duration-200 transform ${
+                addingToCart === product.id ? 'scale-110 shadow-lg' : 'hover:scale-105'
               }`}
             >
               {product.estoque !== undefined && product.estoque <= 0 ? (
@@ -1102,30 +1102,33 @@ const SushiApp = () => {
               ) : (
                 <Plus className="w-4 h-4" />
               )}
-            </button>
+            </Button>
           )}
           
           {isAdmin && (
             <div className="flex space-x-2">
-              <button
+              <Button
                 onClick={() => toggleProductAvailability(product.id)}
-                className={`p-2 rounded-full ${
-                  product.available ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                }`}
+                variant={product.available ? "success" : "destructive"}
+                size="icon"
+                className="h-8 w-8"
               >
                 {product.available ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setEditingProduct(product)}
-                className="p-2 rounded-full bg-blue-100 text-blue-600"
+                variant="secondary"
+                size="icon"
+                className="h-8 w-8"
               >
                 <Edit3 className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           )}
         </div>
-      </div>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   // Componente Footer
@@ -1266,22 +1269,14 @@ const SushiApp = () => {
 
   // Componente Cart Sidebar
   const CartSidebar = () => (
-    <div className={`fixed inset-y-0 right-0 w-full md:w-96 bg-white shadow-2xl transform transition-transform duration-300 z-50 ${
-      isCartOpen ? 'translate-x-0' : 'translate-x-full'
-    }`}>
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <div className="flex items-center space-x-2">
+    <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+      <SheetContent side="right" className="w-full md:w-96">
+        <SheetHeader>
+          <SheetTitle className="flex items-center space-x-2">
             <ShoppingCart className="w-5 h-5 text-green-600" />
-            <h2 className="text-lg font-semibold">Seu Pedido</h2>
-          </div>
-          <button
-            onClick={() => setIsCartOpen(false)}
-            className="p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            <span>Seu Pedido</span>
+          </SheetTitle>
+        </SheetHeader>
         
         <div className="flex-1 overflow-y-auto p-4">
           {cart.length === 0 ? (
@@ -1304,26 +1299,32 @@ const SushiApp = () => {
                     <p className="text-green-600 font-semibold text-sm">R$ {item.price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <button
+                    <Button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-7 h-7 rounded-full bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200"
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7 rounded-full"
                     >
                       <Minus className="w-3 h-3" />
-                    </button>
+                    </Button>
                     <span className="w-8 text-center font-medium text-sm">{item.quantity}</span>
-                    <button
+                    <Button
                       onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                      className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors duration-200"
+                      variant="success"
+                      size="icon"
+                      className="h-7 w-7 rounded-full"
                     >
                       <Plus className="w-3 h-3" />
-                    </button>
+                    </Button>
                   </div>
-                  <button
+                  <Button
                     onClick={() => removeFromCart(item.id)}
-                    className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors duration-200"
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-full text-red-500 hover:bg-red-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -1331,24 +1332,25 @@ const SushiApp = () => {
         </div>
         
         {cart.length > 0 && (
-          <div className="border-t border-gray-100 p-4 space-y-3">
+          <div className="border-t border-gray-100 p-4 space-y-3 mt-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600 text-sm">Total:</span>
               <span className="text-green-600 font-bold text-lg">R$ {getTotalPrice().toFixed(2)}</span>
             </div>
-            <button
+            <Button
               onClick={() => {
                 setIsCheckoutOpen(true);
                 setIsCartOpen(false);
               }}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 text-sm"
+              variant="success"
+              className="w-full"
             >
               Finalizar Pedido
-            </button>
+            </Button>
           </div>
         )}
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 
   // Componente Checkout Modal
@@ -1366,65 +1368,52 @@ const SushiApp = () => {
       }
     };
 
-    if (!isCheckoutOpen) return null;
-
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Finalizar Pedido</h2>
-              <button
-                onClick={() => setIsCheckoutOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Finalizar Pedido</DialogTitle>
+          </DialogHeader>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="customer-name" className="block text-sm font-medium mb-2">Nome completo</label>
-                <input
+                <Input
                   id="customer-name"
                   name="name"
                   type="text"
                   required
                   value={customerData.name}
                   onChange={(e) => setCustomerData({...customerData, name: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Seu nome"
-                  autocomplete="name"
+                  autoComplete="name"
                 />
               </div>
               
               <div>
                 <label htmlFor="customer-phone" className="block text-sm font-medium mb-2">Telefone</label>
-                <input
+                <Input
                   id="customer-phone"
                   name="phone"
                   type="tel"
                   required
                   value={customerData.phone}
                   onChange={(e) => setCustomerData({...customerData, phone: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="(55) 99999-9999"
-                  autocomplete="tel"
+                  autoComplete="tel"
                 />
               </div>
               
               <div>
                 <label htmlFor="delivery-address" className="block text-sm font-medium mb-2">Endereço de entrega</label>
-                <textarea
+                <Input
                   id="delivery-address"
                   name="address"
                   required
                   value={customerData.address}
                   onChange={(e) => setCustomerData({...customerData, address: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Rua, número, bairro, cidade"
-                  rows={3}
-                  autocomplete="address-line1"
+                  autoComplete="address-line1"
                 />
               </div>
               
@@ -1452,16 +1441,16 @@ const SushiApp = () => {
                 </p>
               </div>
               
-              <button
+              <Button
                 type="submit"
-                className="w-full btn-primary text-lg py-4 mt-6"
+                className="w-full text-lg py-4 mt-6"
+                variant="default"
               >
                 Enviar Pedido via WhatsApp
-              </button>
+              </Button>
             </form>
-          </div>
-        </div>
-      </div>
+        </DialogContent>
+      </Dialog>
     );
   };
 

@@ -4,9 +4,12 @@
   "description": "Sistema de delivery completo para MV Sushi - São Francisco de Assis, RS",
   "private": true,
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.14",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "firebase": "^11.9.1",
     "lucide-react": "^0.263.1",
     "qrcode": "^1.5.4",
@@ -14,6 +17,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
+    "tailwind-merge": "^3.3.1",
     "web-vitals": "^3.3.2"
   },
   "scripts": {
