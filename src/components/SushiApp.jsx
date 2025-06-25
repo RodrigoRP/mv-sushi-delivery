@@ -2473,7 +2473,11 @@ ${orderItems}
     });
 
     const formatDate = (date) => {
-      return new Date(date).toLocaleDateString('pt-BR', {
+      // Parse date string as local date to avoid timezone issues
+      const [year, month, day] = date.split('-').map(Number);
+      const localDate = new Date(year, month - 1, day);
+      
+      return localDate.toLocaleDateString('pt-BR', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -2496,7 +2500,8 @@ ${orderItems}
       // Adicionar dias do mês
       for (let day = 1; day <= lastDay.getDate(); day++) {
         const dayDate = new Date(year, month, day);
-        const dateStr = dayDate.toISOString().split('T')[0];
+        // Fix timezone issue by using local date formatting
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         days.push({
           day,
           date: dateStr,
@@ -2515,18 +2520,22 @@ ${orderItems}
       setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
     };
 
-    const selectDate = React.useCallback((date) => {
+    const selectDate = (date) => {
       console.log('Selecting date:', date);
       console.log('Current step before:', currentStep);
       
-      // Update both states in a single batch
-      React.startTransition(() => {
-        setSelectedEventDate(date);
-        setCurrentStep('form');
-      });
+      // Prevent multiple calls by checking if already selected
+      if (selectedEventDate === date && currentStep === 'form') {
+        console.log('Date already selected, ignoring');
+        return;
+      }
       
-      console.log('Should move to form step immediately');
-    }, [currentStep]);
+      // Update states immediately without batching
+      setSelectedEventDate(date);
+      setCurrentStep('form');
+      
+      console.log('Moved to form step');
+    };
 
     const submitEventRequest = () => {
       const eventRequest = {
@@ -2642,9 +2651,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
                     <div key={index} className="h-8 md:h-10">
                       {dayData ? (
                         <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
+                          onClick={() => {
                             if (dayData.available) {
                               selectDate(dayData.date);
                             }
