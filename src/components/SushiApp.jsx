@@ -3,12 +3,13 @@ import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOpt
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import { QRCodeSVG } from 'qrcode.react';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
+// Temporarily commented for debugging
+// import { Button } from './ui/button';
+// import { Card, CardContent } from './ui/card';
+// import { Badge } from './ui/badge';
+// import { Input } from './ui/input';
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+// import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { 
   ShoppingCart, 
   Search, 
@@ -808,19 +809,17 @@ const SushiApp = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </button>
-                <Button
+                <button
                   onClick={() => setShowEventModal(true)}
-                  variant="warning"
-                  size="sm"
-                  className="shadow-sm hover:shadow-md"
+                  className="flex items-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
                   title="Eventos"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-2">Eventos</span>
-                </Button>
-                <Button
+                  <span className="hidden sm:inline text-sm">MODERNIZED UI v1.0.3</span>
+                </button>
+                <button
                   onClick={() => setIsCartOpen(true)}
-                  className={`relative transition-all duration-300 ${
+                  className={`relative btn-primary transition-all duration-300 ${
                     addingToCart ? 'animate-cart-shake' : ''
                   }`}
                 >
@@ -832,7 +831,7 @@ const SushiApp = () => {
                       {getTotalItems()}
                     </span>
                   )}
-                </Button>
+                </button>
               </div>
             )}
             
