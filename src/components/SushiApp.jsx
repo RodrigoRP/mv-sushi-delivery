@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useFirestoreMenu, useFirestoreSettings } from '../hooks/useFirestoreOptimized';
 // import { useLocalStorageMenu as useFirestoreMenu, useLocalStorageSettings as useFirestoreSettings } from '../hooks/useLocalStorage';
 import { useVersionCheck } from '../hooks/useVersionCheck';
+import { useEventDates, useEventRequests, useEventSettings } from '../hooks/useFirestoreEvents';
+import AdminEventCalendar from './events/AdminEventCalendar';
+import AdminEventRequests from './events/AdminEventRequests';
+import ClientEventModal from './events/ClientEventModal';
 import { QRCodeSVG } from 'qrcode.react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
@@ -288,11 +292,23 @@ const SushiApp = () => {
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [addingToCart, setAddingToCart] = useState(null); // Para animação do botão
   
-  // Estados para eventos
+  // Estados para eventos (novo sistema)
   const [showEventModal, setShowEventModal] = useState(false);
-  const [selectedEventDate, setSelectedEventDate] = useState(null);
-  const [availableEventDates, setAvailableEventDates] = useState([]);
-  const [eventRequests, setEventRequests] = useState([]);
+  const { 
+    eventDates, 
+    loading: eventDatesLoading, 
+    setDateAvailability, 
+    generateDefaultDates, 
+    getAvailableDates 
+  } = useEventDates();
+  const { 
+    eventRequests, 
+    loading: eventRequestsLoading, 
+    createEventRequest, 
+    updateEventStatus, 
+    deleteEventRequest 
+  } = useEventRequests();
+  const { settings: eventSettings } = useEventSettings();
   
   // Tipos de eventos disponíveis
   const eventTypes = [
@@ -303,27 +319,70 @@ const SushiApp = () => {
     { id: 'outros', name: 'Outros', icon: '🍣' }
   ];
   
-  // Inicializar datas disponíveis para eventos (próximos 60 dias, exceto domingos)
-  useEffect(() => {
-    const generateAvailableDates = () => {
-      const dates = [];
-      const today = new Date();
+  // Handlers para o novo sistema de eventos
+  const handleDateToggle = async (date, available) => {
+    try {
+      await setDateAvailability(date, available);
+    } catch (error) {
+      console.error('Error toggling date availability:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erro ao atualizar disponibilidade da data',
+        timestamp: Date.now()
+      });
+    }
+  };
+
+  const handleGenerateDates = async () => {
+    try {
+      await generateDefaultDates(
+        eventSettings.leadDays || 7,
+        eventSettings.maxDays || 60,
+        eventSettings.excludeWeekdays || [0]
+      );
+      setNotification({
+        type: 'success',
+        message: 'Datas geradas com sucesso!',
+        timestamp: Date.now()
+      });
+    } catch (error) {
+      console.error('Error generating dates:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erro ao gerar datas',
+        timestamp: Date.now()
+      });
+    }
+  };
+
+  const handleEventRequest = async (requestData) => {
+    try {
+      await createEventRequest(requestData);
+      setNotification({
+        type: 'success',
+        message: 'Solicitação enviada com sucesso!',
+        timestamp: Date.now()
+      });
       
-      for (let i = 7; i <= 60; i++) { // Começar a partir de 7 dias (prazo mínimo)
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        
-        // Excluir domingos (dia 0)
-        if (date.getDay() !== 0) {
-          dates.push(date.toISOString().split('T')[0]);
-        }
-      }
-      
-      setAvailableEventDates(dates);
-    };
-    
-    generateAvailableDates();
-  }, []);
+      // Abrir WhatsApp com mensagem
+      const message = encodeURIComponent(
+        `Olá! Gostaria de solicitar um evento:\n\n` +
+        `📅 Data: ${new Date(requestData.eventDate).toLocaleDateString('pt-BR')}\n` +
+        `🎉 Tipo: ${requestData.eventType}\n` +
+        `👥 Convidados: ${requestData.guests}\n` +
+        `📍 Local: ${requestData.location}\n\n` +
+        `Aguardo retorno! M.V. Sushi`
+      );
+      window.open(`https://wa.me/5555996005343?text=${message}`, '_blank');
+    } catch (error) {
+      console.error('Error creating event request:', error);
+      setNotification({
+        type: 'error',
+        message: 'Erro ao enviar solicitação',
+        timestamp: Date.now()
+      });
+    }
+  };
   
   // Hook para verificar atualizações
   const { hasUpdate, applyUpdate, dismissUpdate } = useVersionCheck();
@@ -1774,113 +1833,21 @@ ${orderItems}
           </div>
         </div>
         
-        {/* Gestão de Eventos */}
-        <div className="card mb-8">
-          <h3 className="text-xl font-semibold mb-6 flex items-center space-x-2">
-            <Calendar className="w-5 h-5 text-orange-500" />
-            <span>Gestão de Eventos</span>
-          </h3>
+        {/* Gestão de Eventos - Novo Sistema */}
+        <div className="space-y-6 mb-8">
+          <AdminEventCalendar
+            eventDates={eventDates}
+            onDateToggle={handleDateToggle}
+            onGenerateDates={handleGenerateDates}
+            loading={eventDatesLoading}
+          />
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Solicitações de Eventos */}
-            <div>
-              <h4 className="font-medium mb-4">Solicitações Recebidas ({eventRequests.length})</h4>
-              {eventRequests.length === 0 ? (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
-                  <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500">Nenhuma solicitação de evento ainda</p>
-                </div>
-              ) : (
-                <div className="space-y-3 max-h-80 overflow-y-auto">
-                  {eventRequests.map(request => (
-                    <div key={request.id} className="p-4 border border-gray-200 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h5 className="font-medium">{request.name}</h5>
-                          <p className="text-sm text-gray-600">{request.contact}</p>
-                        </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                        }`}>
-                          {request.status === 'pending' ? 'Pendente' : 'Confirmado'}
-                        </span>
-                      </div>
-                      
-                      <div className="text-sm space-y-1">
-                        <p><strong>Data:</strong> {new Date(request.date).toLocaleDateString('pt-BR')}</p>
-                        <p><strong>Tipo:</strong> {eventTypes.find(t => t.id === request.type)?.name}</p>
-                        <p><strong>Convidados:</strong> {request.guests}</p>
-                        <p><strong>Local:</strong> {request.location}</p>
-                        {request.budget && <p><strong>Orçamento:</strong> {request.budget}</p>}
-                      </div>
-                      
-                      <div className="flex space-x-2 mt-3">
-                        <a
-                          href={`https://wa.me/55${request.contact.replace(/\D/g, '')}?text=${encodeURIComponent('Olá! Recebemos sua solicitação de evento e entramos em contato para mais detalhes.')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 px-3 rounded-lg text-sm transition-colors"
-                        >
-                          Responder WhatsApp
-                        </a>
-                        <button
-                          onClick={() => {
-                            setEventRequests(eventRequests.filter(r => r.id !== request.id));
-                            setNotification({
-                              type: 'success',
-                              message: 'Solicitação removida',
-                              timestamp: Date.now()
-                            });
-                            setTimeout(() => setNotification(null), 2000);
-                          }}
-                          className="bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-lg text-sm transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            {/* Gestão de Datas Disponíveis */}
-            <div>
-              <h4 className="font-medium mb-4">Datas Disponíveis para Eventos</h4>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-sm text-gray-600 mb-3">
-                  Atualmente gerando automaticamente datas disponíveis (exceto domingos).
-                </p>
-                <div className="text-sm">
-                  <p><strong>Próximas datas:</strong></p>
-                  <div className="mt-2 space-y-1">
-                    {availableEventDates.slice(0, 5).map(date => (
-                      <div key={date} className="flex justify-between items-center">
-                        <span>{new Date(date).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })}</span>
-                        <button
-                          onClick={() => {
-                            setAvailableEventDates(availableEventDates.filter(d => d !== date));
-                            setNotification({
-                              type: 'success',
-                              message: 'Data removida da disponibilidade',
-                              timestamp: Date.now()
-                            });
-                            setTimeout(() => setNotification(null), 2000);
-                          }}
-                          className="text-red-500 hover:text-red-700 text-xs"
-                        >
-                          Remover
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-3">
-                    Total: {availableEventDates.length} datas disponíveis
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdminEventRequests
+            eventRequests={eventRequests}
+            onUpdateStatus={updateEventStatus}
+            onDeleteRequest={deleteEventRequest}
+            loading={eventRequestsLoading}
+          />
         </div>
         
         {/* Configurações da loja */}
@@ -2457,8 +2424,19 @@ ${orderItems}
     );
   }
 
-  // Componente Event Modal
-  const EventModal = () => {
+  // Integração com novo sistema de eventos
+  const EventModalWrapper = () => (
+    <ClientEventModal
+      isOpen={showEventModal}
+      onClose={() => setShowEventModal(false)}
+      availableDates={getAvailableDates()}
+      onSubmitRequest={handleEventRequest}
+      loading={eventRequestsLoading}
+    />
+  );
+
+  // Componente Event Modal (REMOVIDO - substituído pelo novo sistema)
+  const EventModalOld = () => {
     const [currentStep, setCurrentStep] = useState('calendar'); // 'calendar' ou 'form'
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const isProcessingRef = useRef(false);
@@ -2872,7 +2850,7 @@ _Aguardamos seu retorno para confirmar disponibilidade!_`;
         <Header />
         <AdminDashboard />
         <ProductEditModal />
-        <EventModal />
+        <EventModalWrapper />
         <Notification />
         <UpdateNotification />
       </div>
